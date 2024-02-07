@@ -1,0 +1,69 @@
+<html>
+    <head>
+        <style>
+            body {
+                font-size: 12pt;
+                background-color: #242424;
+                color: #bebebe;
+                margin-bottom: 500px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h2>Native Adaptive Streaming Extension has been updated to version 5.0.0</h2>
+        <b style="color: rgb(255, 29, 29); text-decoration: underline; font-size: 14pt;">Please read this document before use!</b>
+        <h2>Release Notes</h2>
+
+        <h3>New features and improvements</h3>
+        <ul>
+            <li>Migrated to Manifest V3 (please read the notes below for possible issues)</li>
+            <li>Completely rewritten in Angular</li>
+            <li>Redesigned UI</li>
+            <li>Added audio track selection</li>
+            <li>Added label for current autoselected quality</li>
+            <li>Added custom playback speed input beside the predefined list</li>
+            <li>Added M3U playlist support</li>
+            <li>Added ability to save stream in local storage for later playback (saves streaming URL, DRM license URL, 
+                subtitles URL, and custom headers)</li>
+            <li>Volume control fixes</li>
+            <li>Extension menu now has option on top to open extension page and to manually specify streaming source</li>
+            <li>Added streaming URL and text selection context menu action for playing streams in the extension</li>
+
+        </ul>
+
+        <h3>Removed functionalities</h3>
+        <ul>
+            <li>Removed hls.js, dashjs and hajsplayer.js version selection for easier maintainability</li>
+            <li>Removed native video sizing since I don't use it, not sure which use case justifies having the option</li>
+        </ul>
+
+        <h3>Regarding migration to Manifest V3</h3>
+        Chrome forces extensions to migrate to a new manifest version. I wanted to do this for a long time but I always 
+        stumble on some kind of problem. In short, new extensions must use declarativeNetRequest for handling blocking 
+        HTTP requests. This extension uses regexFilter now, with a redirect action. Old extension was used simple string 
+        processing to determine whether it should redirect a user to a player or not. This was very reliable since the 
+        URL could be split and analyzed to make a choice. The new extension is relying in a regex pattern to detect a 
+        streaming URL, and this is very finicky in my opinion because nothing short of a very greedy regex would work 
+        reliable enough. That means it captures the manifest.mpd, for example, if you type it in on some search engine 
+        and then it improperly redirects. In time I may devise a better pattern but for now if this happens just click 
+        on the Disable DNR on the extension menu. Like shown on the image below:
+
+        <div style="margin: 20px">
+            <img src="assets/disable_dnr.png" />
+        </div>
+
+        Alternatively, you can head on to the options and try to edit the DNR rules yourself. Disabling DNR only 
+        disables redirection using left click. I've added context menus for links and selections which you can use 
+        instead.
+
+        <div style="margin: 20px">
+            <img src="assets/context_menu.png" />
+        </div>
+
+        It's also been interesting to comply with the firefox side of things, with the adding of dynamic rules and 
+        regarding their permissions and security. In my tests firefox just blocks the request for now and requires 
+        additional manual navigation to redirect the URL. It also required me to manually enable all permissions on 
+        extension options, which I hope won't be necessary when I publish the extension, but I will test it some more.
+    </body>
+</html>

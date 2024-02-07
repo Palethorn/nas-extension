@@ -1,0 +1,7 @@
+<div #videoElementContainer id="video-element-container">
+    <video style="width: 100%; height: 100%;" crossorigin="anonymous" #videoElement id="video-element">
+    </video>
+    <div #playerControlsParent>
+        <app-player-controls id="app-player-controls" [parent]="videoElementContainer" [videoElement]="videoElement"></app-player-controls>
+    </div>
+</div>

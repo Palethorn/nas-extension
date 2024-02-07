@@ -1,0 +1,37 @@
+<div id="player-controls" (mouseover)="freezeControls()" (mouseleave)="unfreezeControls()" [ngClass]="{ 'visibility-collapsed': 'collapsed' == stateControllerService.getState('controls') }">
+    <div (click)="playPause();" id="controls-play-pause" class="controls-item controls-btn"><span style="width: 40px; height: 40px;" class="material-icons control-item">{{icon}}</span></div>
+    <div id="controls-time" [ngClass]="{ 'visibility-collapsed': player.isLive() }" class="controls-item controls-padding"><span>{{currentTime}}</span></div>
+    <div id="controls-progress" [ngClass]="{ 'visibility-collapsed': player.isLive() }" class="controls-item controls-padding" #progress>
+    </div>
+    <div id="controls-duration" [ngClass]="{ 'visibility-collapsed': player.isLive() }" class="controls-item controls-padding"><span>{{duration}}</span></div>
+    <div 
+        id="controls-volume-icon"
+        class="controls-item controls-btn"
+        (click)="toggleMute();">
+            <span style="width: 40px; height: 40px;" class="material-icons control-item">{{volumeIcon}}</span>
+        </div>
+    <div id="controls-volume" class="controls-item controls-padding" #volume>
+    </div>
+    <div (click)="toggleSettings()" id="controls-settings" class="controls-item controls-btn"><span style="width: 40px; height: 40px;" class="material-icons control-item">settings</span></div>
+    <div (click)="toggleFullscreen()" id="controls-fullscreen" class="controls-item controls-btn"><span style="width: 40px; height: 40px;" class="material-icons control-item">fullscreen</span></div>
+</div>
+
+<app-settings 
+    id="settings-container" 
+    [qualities]="qualities"
+    [audioTracks]="audioTracks"
+    [selectedAudioTrack]="selectedAudioTrack"
+    [selectedQuality]="selectedQuality"
+    [currentAutoQuality]="currentAutoQuality"
+
+    (streamLoad)="loadStream()"
+    (speedChange)="selectSpeed($event)"
+    (qualityChange)="selectQuality($event)"
+    (subtitleUrlChange)="loadSubtitle($event)"
+    (audioTrackChange)="selectAudioTrack($event)"
+    (licenseUrlChange)="changeLicenseUrl($event)"
+    (streamingUrlChange)="changeStreamingUrl($event)"
+    (licenseUrlHeadersChange)="changeLicenseUrlHeaders($event)"
+    (streamingUrlHeadersChange)="changeStreamingUrlHeaders($event)"
+
+    [ngClass]="{ 'visibility-collapsed': 'collapsed' == stateControllerService.getState('settings') }"/>

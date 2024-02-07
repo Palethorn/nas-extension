@@ -1,0 +1,232 @@
+<div id="settings">
+    <div class="settings-menu">
+        <div 
+            class="settings-menu-item" 
+            (click)="showSection('source-settings')"
+            [ngClass]="{ 'settings-menu-item-active': 'source-settings' == settingsSection }">
+            Source Settings
+        </div>
+        <div 
+        class="settings-menu-item" 
+        (click)="showSection('stream-settings')"
+        [ngClass]="{ 'settings-menu-item-active': 'stream-settings' == settingsSection }">
+            Stream Settings
+        </div>
+        <div 
+        class="settings-menu-item" 
+        (click)="showSection('http-settings')"
+        [ngClass]="{ 'settings-menu-item-active': 'http-settings' == settingsSection }">
+            HTTP Settings
+        </div>
+        <div 
+            class="settings-menu-item" 
+            (click)="showSection('m3u-source-settings')"
+            [ngClass]="{ 'settings-menu-item-active': 'm3u-source-settings' == settingsSection }">
+            M3U Source
+        </div>
+        <div 
+        class="settings-menu-item" 
+        (click)="showSection('saved-streams')"
+        [ngClass]="{ 'settings-menu-item-active': 'saved-streams' == settingsSection }">
+            Saved Streams
+        </div>
+
+        <div style="float:right; width: 20px; cursor: pointer; height: 20px; margin-right: 10px; margin-left: 10px;" (click)="toggleSettings()">
+            <span class="material-icons" style="font-size: 14pt;">close</span>
+        </div>
+    </div>
+    <div 
+        class="settings-section"
+        [ngClass]="{ 'settings-section-active': 'source-settings' == settingsSection }">
+        <div class="form-field-container">
+            <div class="form-field-container-inline">
+                <label for="streaming-url">Streaming URL</label>
+            </div>
+            <div class="form-field-container-inline">
+                <input [(ngModel)]="streamingUrl" type="text" id="streaming-url" name="streaming-url" />
+            </div>
+        </div>
+        <div class="form-field-container">
+            <div class="form-field-container-inline">
+                <label for="license-url">License URL</label>
+            </div>
+            <div class="form-field-container-inline">
+                <input [(ngModel)]="licenseUrl" type="text" id="license-url" name="license-url" />
+            </div>
+        </div>
+        <div class="form-field-container">
+            <div class="form-field-container-inline">
+                <label for="subtitle-url">Subtitle URL</label>
+            </div>
+            <div class="form-field-container-inline">
+                <input [(ngModel)]="subtitleUrl" (ngModelChange)="subtitleUrlChange.emit(subtitleUrl)" type="text" id="subtitle-url" name="subtitle-url" />
+            </div>
+        </div>
+        <div class="form-field-container">
+            <div class="form-field-container-inline">
+                <button (click)="loadStream()">Load Stream</button>
+            </div>
+        </div>
+    </div>
+    <div 
+        class="settings-section"
+        [ngClass]="{ 'settings-section-active': 'stream-settings' == settingsSection }">
+        <div class="form-field-container">
+            <div class="form-field-container-inline">
+                <label for="audio-track-selection">Select Audio Track</label>
+            </div>
+            <div class="form-field-container-inline">
+                <select [(ngModel)]="selectedAudioTrack" (ngModelChange)="audioTrackChange.emit(selectedAudioTrack)" id="audio-track-selection" name="audio-track-selection">
+                    <option *ngFor="let audioTrack of audioTracks" [ngValue]="audioTrack">{{audioTrack.lang}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-field-container">
+            <div class="form-field-container-inline">
+                <label for="quality-selection">Select Quality (Current: {{currentAutoQuality.width}}x{{currentAutoQuality.height}}: {{currentAutoQuality.bitrateStr}})</label>
+            </div>
+            <div class="form-field-container-inline" style="width: 200px;">
+                <select [(ngModel)]="selectedQuality" (ngModelChange)="qualityChange.emit(selectedQuality)" id="quality-selection" name="quality-selection">
+                    <option *ngFor="let quality of qualities" [ngValue]="quality">{{quality.width}}x{{quality.height}}: {{quality.bitrateStr}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-field-container">
+            <div class="form-field-container-inline">
+                <label for="playback-speed-selection">Select Playback Speed</label>
+            </div>
+            <div class="form-field-container-inline">
+                <select [(ngModel)]="selectedSpeed" (ngModelChange)="speedChange.emit(selectedSpeed)" id="playback-speed-selection" name="playback-speed-selection">
+                    <option *ngFor="let speed of speeds" [ngValue]="speed">{{speed}}</option>
+                </select>
+            </div>
+
+        </div>
+        <div class="form-field-container">
+            <div class="form-field-container-inline">
+                <label for="playback-speed-input">Custom Playback Speed</label>
+            </div>
+            <div class="form-field-container-inline">
+                <div class="form-field-container-inline">
+                    <input type="number" step=".1" min="0" [(ngModel)]="selectedSpeed" (ngModelChange)="speedChange.emit(selectedSpeed)" id="playback-speed-input" name="playback-speed-input" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div 
+        class="settings-section"
+        [ngClass]="{ 'settings-section-active': 'http-settings' == settingsSection }">
+        <div class="form-field-container">Streaming Url Headers</div>
+
+            <div *ngFor="let value of streamingUrlHeaders; let i = index" class="form-field-container">
+                <div class="form-field-container-inline" style="width: 260px;">
+                    <input class="http-header-input" [(ngModel)]="streamingUrlHeaders[i].name" (ngModelChange)="streamingUrlHeadersChange.emit(streamingUrlHeaders)" type="text" />
+                </div>
+                <div class="form-field-container-inline" style="width: 260px;">
+                    <input class="http-header-input" [(ngModel)]="streamingUrlHeaders[i].value" (ngModelChange)="streamingUrlHeadersChange.emit(streamingUrlHeaders)" type="text" />
+                </div>
+                <div class="form-field-container-inline" style="width: 40px; cursor: pointer; padding-top: 2px;" (click)="removeStreamingUrlHeader(i)">
+                    <span class="material-icons">close</span>
+                </div>
+            </div>
+
+        <div class="form-field-container">License Url Headers</div>
+
+            <div *ngFor="let value of licenseUrlHeaders; let i = index" class="form-field-container">
+                <div class="form-field-container-inline" style="width: 260px;">
+                    <input class="http-header-input" [(ngModel)]="licenseUrlHeaders[i].name" (ngModelChange)="licenseUrlHeadersChange.emit(licenseUrlHeaders)" type="text" />
+                </div>
+                <div class="form-field-container-inline" style="width: 260px;">
+                    <input class="http-header-input" [(ngModel)]="licenseUrlHeaders[i].value" (ngModelChange)="licenseUrlHeadersChange.emit(licenseUrlHeaders)" type="text" />
+                </div>
+                <div class="form-field-container-inline" style="width: 40px; cursor: pointer; padding-top: 2px;" (click)="removeLicenseUrlHeader(i)">
+                    <span class="material-icons">close</span>
+                </div>
+            </div>
+
+
+        <div class="form-field-container">
+            <div class="form-field-container-inline" style="width: 250px; margin-right: 10px;">
+                <button class="http-btn" (click)="addStreamingUrlHeader()">Add Streaming URL Header</button>
+            </div>
+            <div class="form-field-container-inline" style="width: 250px; margin-right: 10px;">
+                <button class="http-btn" (click)="addLicenseUrlHeader()">Add License Url Header</button>
+            </div>
+        </div>
+        <div>
+            <div class="form-field-container-inline" style="width: 250px;">
+                <button class="http-btn" (click)="loadStream()">Reload stream</button>
+            </div>
+        </div>
+    </div>
+    <div 
+        class="settings-section"
+        [ngClass]="{ 'settings-section-active': 'saved-streams' == settingsSection }">
+        <div class="form-field-container" style="height: 500px; overflow-y: auto;">
+            <div class="form-field-container" *ngFor="let streamInfo of savedStreams; let i = index">
+                <div 
+                    class="form-field-container-inline" 
+                    style="width: 40px; height: 20px; cursor: pointer; vertical-align: top;"
+                    (click)="playSavedStream(streamInfo)">
+                    <span class="material-icons">play_arrow</span>
+                </div>
+                <div class="form-field-container-inline" style="width: 312px; height: 20px;">
+                    {{streamInfo.name}}
+                </div>
+                <div 
+                    class="form-field-container-inline" 
+                    style="width: 176px; cursor: pointer; text-align: right;"
+                    (click)="removeSavedStream(i)">
+                    <span class="material-icons">close</span>
+                </div>
+            </div>
+        </div>
+        <div class="form-field-container">
+            <div class="form-field-container-inline">
+                <label for="current-stream-name-input">Current Stream Name</label>
+            </div>
+            <div class="form-field-container-inline" style="width: 225px;">
+                <input name="current-stream-name-input" id="current-stream-name-input" [(ngModel)]="currentStreamName">
+            </div>
+        </div>
+        <div class="form-field-container">
+            <div class="form-field-container-inline" style="width: 225px;">
+                <button (click)="saveCurrentStream()">Save Current Stream</button>
+            </div>
+        </div>
+    </div>
+    <div 
+        class="settings-section"
+        [ngClass]="{ 'settings-section-active': 'm3u-source-settings' == settingsSection }">
+
+        <div class="form-field-container" style="height: 500px; overflow-y: auto;">
+            <div class="form-field-container" *ngFor="let m3uItem of m3uItems; let i = index">
+                <div 
+                    class="form-field-container-inline" 
+                    style="width: 40px; height: 20px; cursor: pointer; vertical-align: top;"
+                    (click)="playSavedStream(m3uItem)">
+                    <span class="material-icons">play_arrow</span>
+                </div>
+                <div class="form-field-container-inline" style="width: 312px; height: 20px;">
+                    {{m3uItem.name}}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-field-container">
+            <div class="form-field-container-inline">
+                <label for="m3u-source-input">Current Stream Name</label>
+            </div>
+            <div class="form-field-container-inline" style="width: 225px;">
+                <input name="m3u-source-input" id="m3u-source-input" [(ngModel)]="m3uPlaylist">
+            </div>
+        </div>
+
+        <div class="form-field-container">
+            <div class="form-field-container-inline" style="width: 225px;">
+                <button (click)="loadM3UPlaylist()">Load M3U Playlist</button>
+            </div>
+        </div>
+    </div>
+</div>

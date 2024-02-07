@@ -1,0 +1,140 @@
+@import 'material-icons/iconfont/filled.css';
+
+
+@keyframes click_animation {
+    0% {
+      background-color: #c54310;
+    }
+    100% {
+      background-color: #ff000000;
+    }
+}
+
+* {
+    box-sizing: border-box;
+    font-family: sans-serif;
+    font-size: 12pt;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #242424;
+    color: #ffffff;
+    font-family: sans-serif;
+}
+
+a {
+    cursor: pointer;
+}
+
+a:link, a:visited {
+    text-decoration: none;
+    color: inherit;
+}
+
+.float-left {
+    float: left;
+}
+
+.margin-top-10 {
+    margin-top: 10px;
+}
+
+.margin-left-10 {
+    margin-left: 10px;
+}
+
+button {
+    width: 200px;
+    height: 30px;
+    font-size: 12pt;
+    color: white;
+    background-color: #c54310;
+    border: none;
+    border-radius: 5px;
+}
+
+button:active {
+    border: 1px solid #ffffff;
+}
+
+input {
+    outline: none;
+    color: white;
+    height: 25px;
+    border: none;
+    border-radius: 5px;
+    background-color: white;
+}
+
+input:focus {
+    outline: none;
+    color: black;
+    background-color: #ffffff;
+    box-shadow: 0 0 5px #c54310;
+}
+
+select {
+    color: white;
+    width: 200px;
+    height: 30px;
+    font-size: 11pt;
+    outline-color: #c54310;
+    border-radius: 5px;
+    border: none;
+    background-color: #c54310;
+}
+
+option {
+    background-color: white;
+    color: #c54310;
+}
+
+.btn-flat-animate {
+    animation: click_animation 400ms 1;
+}
+
+.btn-flat {
+    display: inline-block;
+}
+
+.material-icons {
+    text-align: center;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+}
+
+.form-field-container {
+    border-bottom: 1px solid #929292;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+
+.form-field-container-inline {
+    width: 265px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+input {
+    width: 200px;
+    color: black;
+}
+
+.inline {
+    display: inline-block;
+}
+
+.visibility-visible {
+    visibility: visible;
+}
+
+
+.visibility-collapsed {
+    visibility: collapse;
+}

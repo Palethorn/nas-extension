@@ -1,0 +1,14 @@
+#loader-container-inner {
+    background-color: transparent;
+    width: 200px;
+    height: 200px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 15%;
+}
+
+#loader-object {
+    position: relative;
+    width: 200px;
+    height: 200px;
+}

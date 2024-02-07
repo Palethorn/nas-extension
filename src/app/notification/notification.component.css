@@ -1,0 +1,17 @@
+:host {
+    position: absolute;
+    border: 1px solid #c54310;
+    top: 20px;
+    left: 20px;
+    border-radius: 5%;
+    width: 300px;
+    padding: 10px;
+    background-color: rgba(39, 39, 39, 0.76);
+}
+
+h4 {
+    height: 24px;
+    display: inline-block;
+    color: #adadad;
+    margin: 0;
+}

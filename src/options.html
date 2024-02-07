@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8"> 
+        <title>Native HLS Settings</title>
+        <style>body { padding: 10px; background-color: #1d1d1d; color: white; width: 1000px; }</style>
+    </head>
+    <body>
+        <p>
+            <label for="maxQuality">
+                Automatically play videos at maximum quality:
+                <input type="checkbox" id="maxQuality">
+            </label>
+        </p>
+        <p>
+            <label for="dnr-rules">
+                declarativeNetRequest Rules:
+                <textarea style="width: 900px; height: 400px;" id="dnr-rules" ></textarea>
+            </label>
+            <button id="reset-dnr-rules-btn">Reset DNR Rules</button>
+        </p>
+        <button id="saveSettings">Save</button>
+        <span id="status"></span>
+    </body>
+    <script src="options.js"></script>
+</html>

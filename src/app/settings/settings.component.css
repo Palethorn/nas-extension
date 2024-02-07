@@ -1,0 +1,66 @@
+:host {
+    position: absolute;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.form-field-container-inline span {
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#settings {
+    width: 692px;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #242424;
+    padding: 10px;
+    border: 1px solid #929292;
+}
+
+.settings-menu {
+    background-color: #3d3d3d;
+    border-bottom: 1px solid #929292;
+    width: 690px;
+    height: 40px;
+    text-align: left;
+    padding-top: 10px;
+    margin-left: -10px;
+    margin-top: -10px;
+}
+
+.settings-menu-item {
+    margin-left: 10px;
+    display: inline-block;
+    font-size: 12pt;
+    height: 20px;
+    cursor: pointer;
+    color: #dbdbdb;
+    width: 120px;
+    text-align: center;
+}
+
+.settings-menu-item-active {
+    border-bottom: 1px solid #929292;
+    color: white;
+}
+
+.settings-section {
+    overflow: hidden;
+    height: 0;
+}
+
+.settings-section-active {
+    height: initial;
+}
+
+.http-btn {
+    width: 250px;
+}
+
+.http-header-input {
+    width: 250px
+}

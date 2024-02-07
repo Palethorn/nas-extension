@@ -1,0 +1,79 @@
+.material-icons {
+    font-size: 25pt;
+    margin-top: 2px;
+}
+
+#player-controls {
+    position: absolute;
+	left:0px;
+	right:0px;
+    bottom: 0px;
+    height:40px;
+    margin: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border-top: 1px solid #383838;
+}
+
+.controls-btn {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.controls-btn:active {
+    background-color: #c54310;
+}
+
+.controls-item {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+
+    height: 40px;
+    float: left;
+    margin-right: 10px;
+}
+
+.controls-padding {
+    margin-top: 11px;
+}
+
+#controls-time, #controls-duration {
+    width: 63px;
+}
+
+#controls-progress {
+    height: 20px;
+}
+
+#controls-volume {
+    height: 20px;
+    width: 63px;
+}
+
+#settings-container {
+    position: absolute;
+    width: 100%;
+}
+
+#settings {
+    width: 500px;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #242424;
+    padding: 10px;
+    border: 1px solid #929292;
+}
+
+.settings-title {
+    background-color: #3d3d3d;
+    border-bottom: 1px solid #929292;
+    width: 498px;
+    height: 40px;
+    text-align: left;
+    padding: 10px;
+    margin-left: -10px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
