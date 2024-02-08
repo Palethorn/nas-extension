@@ -28,9 +28,6 @@
             "assets": [
               "src/release_notes.html",
               "src/favicon.ico",
-              "src/firefox/manifest.json",
-              "src/chrome/manifest.json",
-              "src/manifest.json",
               "src/service_worker.js",
               "src/popup.js",
               "src/options.js",
