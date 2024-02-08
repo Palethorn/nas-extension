@@ -92,7 +92,8 @@ console.log('adding message receiver');
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 
     if('get-dnr-state' == request.type) {
-        sendResponse({ dnrEnabled: dnrEnabled });
+        sendResponse({ response: dnrEnabled, dnrEnabled: dnrEnabled });
+        return { response: dnrEnabled, dnrEnabled: dnrEnabled };
     }
 
     if('reset-dnr-rules' == request.type) {
@@ -178,9 +179,9 @@ async function reloadDnrRules() {
 async function removeDnrRules() {
     const oldRules = await chrome.declarativeNetRequest.getDynamicRules();
 
-    chrome.declarativeNetRequest.updateDynamicRules(chrome.declarativeNetRequest.updateDynamicRules({
+    chrome.declarativeNetRequest.updateDynamicRules({
         removeRuleIds: oldRules.map(r => r.id)
-    }));
+    });
 
     const currentRules = await chrome.declarativeNetRequest.getDynamicRules();
     console.log(currentRules);

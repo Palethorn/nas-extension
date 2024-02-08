@@ -1,9 +1,15 @@
 {
     "name": "Native MPEG-Dash + HLS Playback",
-    "version": "5.0.0",
+    "version": "5.0.1",
     "description": "Allow the browser to play HLS (m3u8) or MPEG-Dash (mpd) video urls 'natively'",
     "manifest_version": 3,
     "icons": { "128": "assets/icon128.png" },
+    "browser_specific_settings": {
+        "gecko": {
+          "id": "native-dash-hls@cavar.net",
+          "strict_min_version": "113.0"
+        }
+    },
     "content_security_policy": {
         "extension_pages": "script-src 'self' object-src 'self'"
     },

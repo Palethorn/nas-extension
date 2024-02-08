@@ -5,10 +5,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --output-path dist/nas-extension",
+    "build": "ng build --configuration production --output-path dist/nas-extension",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "pack": "rm dist/nas-extension.zip && cd dist/nas-extension && zip -r ../nas-extension.zip *"
+    "pack": "rm -f dist/nas-extension.zip nas-extension-source.zip && zip -r nas-extension-source.zip * -x '*node_modules*' -x '*dist*' && cd dist/nas-extension && zip -r ../nas-extension.zip *"
   },
   "private": true,
   "dependencies": {

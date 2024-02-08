@@ -1,5 +1,3 @@
-var current_version = "0.8.2"
-
 var btnUpdate = document.getElementById('btnUpdate');
 btnUpdate.addEventListener('click', updateState);
 
@@ -10,6 +8,7 @@ chrome.runtime.sendMessage({ type: 'get-dnr-state' }, (response) => {
 
     console.log(response);
     btnUpdate.innerText = response.dnrEnabled ? 'DISABLE DNR' : 'ENABLE DNR';
+    console.log(btnUpdate.innerText);
 });
 
 function updateState() {
