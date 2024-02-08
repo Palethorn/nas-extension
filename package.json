@@ -1,13 +1,14 @@
 {
   "name": "nas-extension",
-  "version": "0.0.0",
+  "version": "5.0.0",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --output-path dist/nas-extension",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "pack": "rm dist/nas-extension.zip && cd dist/nas-extension && zip -r ../nas-extension.zip *"
   },
   "private": true,
   "dependencies": {
@@ -21,8 +22,8 @@
     "@angular/router": "^16.1.0",
     "@types/chrome": "^0.0.260",
     "material-icons": "^1.13.12",
-    "nas-logger": "file:../nas-logger",
-    "nas-player": "file:../nas-player",
+    "nas-logger": "^1.0.0",
+    "nas-player": "^1.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.13.0"

@@ -29,5 +29,8 @@
     "web_accessible_resources": [{ 
         "resources": [ "/index.html" ],
         "matches": [ "<all_urls>" ]
+    }, { 
+        "resources": [ "/release_notes.html" ],
+        "matches": [ "<all_urls>" ]
     }]
 }
