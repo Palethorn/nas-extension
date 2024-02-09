@@ -159,11 +159,19 @@ export class PlayerControlsComponent {
       }
 
       if('ArrowUp' == e.code) {
-        this.volumeBar.setValue(this.volumeBar.getValue() + 1, true);
+        this.volumeBar.setValue(this.volumeBar.getValue() + .1, true);
       }
 
       if('ArrowDown' == e.code) {
-        this.volumeBar.setValue(this.volumeBar.getValue() - 1, true);
+        this.volumeBar.setValue(this.volumeBar.getValue() - .1, true);
+      }
+
+      if('KeyS' == e.code) {
+        if('collapsed' == this.stateControllerService.getState('settings')) {
+          this.stateControllerService.transition('settings', 'visible');
+        } else {
+          this.stateControllerService.transition('settings', 'collapsed');
+        }
       }
     });
 

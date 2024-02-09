@@ -39,6 +39,13 @@
             Saved Streams
         </div>
 
+        <div 
+            class="settings-menu-item" 
+            (click)="showSection('about')"
+            [ngClass]="{ 'settings-menu-item-active': 'about' == settingsSection }">
+            About
+        </div>
+
         <div style="float:right; width: 20px; cursor: pointer; height: 20px; margin-right: 10px; margin-left: 10px;" (click)="toggleSettings()">
             <span class="material-icons" style="font-size: 14pt;">close</span>
         </div>
@@ -248,6 +255,43 @@
             <div class="form-field-container-inline" style="width: 225px;">
                 <button (click)="loadM3UPlaylist()">Load M3U Playlist</button>
             </div>
+        </div>
+    </div>
+    <div
+        class="settings-section"
+        [ngClass]="{ 'settings-section-active': 'about' == settingsSection }">
+
+        <div class="form-field-container">
+            Check Out My Music <span class="material-icons">music_note</span>
+            <ul>
+                <li><a target="_blank" href="https://music.youtube.com/channel/UC3gBKosgHP9qAeCUJH0xIrQ">Youtube Music</a></li>
+                <li><a target="_blank" href="https://music.apple.com/us/artist/shiro-ryuu/1666369706">Apple Music</a></li>
+                <li><a target="_blank" href="https://open.spotify.com/artist/0ZlEd7woVoVeooBpBWaxGh">Spotify</a></li>
+                <li><a target="_blank" href="https://www.deezer.com/us/artist/197843387">Deezer</a></li>
+                <li>iTunes</li>
+                <li>Tidal</li>
+            </ul>
+        </div>
+
+        <div class="form-field-container">
+            <a target="_blank" href="https://paypal.me/nativeadaptivestream"><span></span>Donate using PayPal</a>
+        </div>
+
+        <div class="form-field-container">
+            <a href="monero:86vY4r573cpBSs2RmLT6H9EGpw8LihAbL75Qxcspg9YW3j4sXB6BUVHLLbypXm6tR5hGg2eqfEJxDF2MgZYzFU618jddxVR"><span></span>Donate using Monero</a>
+            <div><img width="150" height="150" src="assets/monero_address.png" /></div>
+        </div>
+
+        <div class="form-field-container">
+            <a href="bitcoin:bc1qex67zfjfnv57w436p2uhdmxdlyu8dyy5lghrck"><span></span>Donate using BTC</a>
+            <div><img width="150" height="150" src="assets/bitcoin_address.png" /></div>
+        </div>
+
+        <div class="form-field-container">
+            <a href="/release_notes.html">Release Notes</a>
+        </div>
+        <div class="form-field-container">
+            <a href="https://github.com/Palethorn/nas-extension/blob/master/Privacy%20Policy.pdf">Privacy Policy</a>
         </div>
     </div>
 </div>
