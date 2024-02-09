@@ -29,6 +29,8 @@ export class SettingsComponent {
   @Output() audioTrackChange: EventEmitter<AudioTrack> = new EventEmitter();
   @Output() licenseUrlHeadersChange: EventEmitter<Array<Header>> = new EventEmitter();
   @Output() streamingUrlHeadersChange: EventEmitter<Array<Header>> = new EventEmitter();
+  @Output() alwaysShowFullPlayerControlsChange: EventEmitter<boolean> = new EventEmitter();
+
 
   hrefUrl: string = '';
   licenseUrl: string = '';
@@ -43,6 +45,7 @@ export class SettingsComponent {
   streamingUrlHeaders: Array<Header> = [];
   settingsSection: string = 'source-settings';
   logger:Logger = new Logger('SettingsComponent');
+  alwaysShowFullPlayerControls: boolean = false;
 
   speeds: any = [
     .25,
@@ -74,11 +77,19 @@ export class SettingsComponent {
       this.streamingUrlChange.emit(this.streamingUrl);
     }
 
-    this.storageService.get((res: any) => {
+    this.storageService.get('saved_streams', (res: any) => {
       if(res) {
         this.savedStreams = res;
       }
-    }, 'saved_streams');
+    });
+
+    this.storageService.get('always-show-full-player-controls', (value: boolean) => {
+      if(undefined === value) {
+        return;
+      }
+
+      this.alwaysShowFullPlayerControls = value;
+    });
   }
 
   ngAfterViewInit() {
@@ -98,6 +109,7 @@ export class SettingsComponent {
     this.streamingUrlChange?.emit(this.streamingUrl);
     this.licenseUrlHeadersChange.emit(this.licenseUrlHeaders);
     this.streamingUrlHeadersChange.emit(this.streamingUrlHeaders);
+    this.alwaysShowFullPlayerControlsChange.emit(this.alwaysShowFullPlayerControls);
 
     this.streamLoad.emit(this.streamingUrl);
   }
@@ -151,9 +163,7 @@ export class SettingsComponent {
 
     this.savedStreams.push(streamInfo);
 
-    this.storageService.set(() => {
-
-    }, 'saved_streams', this.savedStreams);
+    this.storageService.set('saved_streams', this.savedStreams);
   }
 
   removeSavedStream(i:number) {
@@ -161,9 +171,7 @@ export class SettingsComponent {
       this.savedStreams.splice(i, 1);
     }
 
-    this.storageService.set(() => {
-
-    }, 'saved_streams', this.savedStreams);
+    this.storageService.set('saved_streams', this.savedStreams);
   }
 
   playSavedStream(streamInfo: StreamInfo) {
@@ -214,5 +222,10 @@ export class SettingsComponent {
         this.logger.d(this.m3uItems);
         this.stateControllerService.transition('loader', 'collapsed');
     });
+  }
+
+  alwaysShowFullPlayerControlsChanged() {
+    this.alwaysShowFullPlayerControlsChange.emit(this.alwaysShowFullPlayerControls);
+    this.storageService.set('always-show-full-player-controls', this.alwaysShowFullPlayerControls);
   }
 } 

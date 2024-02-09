@@ -42,3 +42,4 @@ testem.log
 Thumbs.db
 
 nas-extension-source.zip
+src/manifest.json

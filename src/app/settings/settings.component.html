@@ -12,6 +12,14 @@
         [ngClass]="{ 'settings-menu-item-active': 'stream-settings' == settingsSection }">
             Stream Settings
         </div>
+
+        <div 
+        class="settings-menu-item" 
+        (click)="showSection('player-settings')"
+        [ngClass]="{ 'settings-menu-item-active': 'player-settings' == settingsSection }">
+            Player Settings
+        </div>
+
         <div 
         class="settings-menu-item" 
         (click)="showSection('http-settings')"
@@ -100,8 +108,8 @@
                     <option *ngFor="let speed of speeds" [ngValue]="speed">{{speed}}</option>
                 </select>
             </div>
-
         </div>
+
         <div class="form-field-container">
             <div class="form-field-container-inline">
                 <label for="playback-speed-input">Custom Playback Speed</label>
@@ -113,7 +121,20 @@
             </div>
         </div>
     </div>
+    <div 
+        class="settings-section"
+        [ngClass]="{ 'settings-section-active': 'player-settings' == settingsSection }">
 
+        <div class="form-field-container">
+            <div class="form-field-container-inline">
+                <label for="full-player-controls-checkbox">Always show full player controls</label>
+            </div>
+            <div class="form-field-container-inline">
+                <input type="checkbox" [(ngModel)]="alwaysShowFullPlayerControls" (ngModelChange)="alwaysShowFullPlayerControlsChanged()" id="full-player-controls-checkbox" />
+            </div>
+        </div>
+
+    </div>
     <div 
         class="settings-section"
         [ngClass]="{ 'settings-section-active': 'http-settings' == settingsSection }">

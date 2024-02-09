@@ -1,17 +1,16 @@
 {
   "name": "nas-extension",
-  "version": "5.0.0",
+  "version": "5.0.2",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --configuration production --output-path dist/nas-extension",
-    "watch": "ng build --watch --configuration development",
-    "watch_firefox": "./watch_firefox.sh",
-    "watch_chrome": "./watch_chrome.sh",
+    "watch_chrome": "cp src/chrome_manifest.json src/manifest.json && ng build --watch --configuration development --output-path dist/nas-extension-chrome",
+    "watch_firefox": "cp src/firefox_manifest.json src/manifest.json && ng build --watch --configuration development --output-path dist/nas-extension-firefox",
     "test": "ng test",
-    "pack_firefox": "rm -f dist/nas-extension.zip nas-extension-source.zip && zip -r nas-extension-source.zip * -x '*node_modules*' -x '*dist*' && cd dist/nas-extension && zip -r ../nas-extension.zip *",
-    "pack_chrome": "rm -f dist/nas-extension.zip nas-extension-source.zip && zip -r nas-extension-source.zip * -x '*node_modules*' -x '*dist*' && cd dist/nas-extension && zip -r ../nas-extension.zip *"
+    "pack_chrome": "rm -f dist/nas-extension-chrome.zip nas-extension-source.zip && zip -r nas-extension-source.zip * -x '*node_modules*' -x '*dist*' && cd dist/nas-extension-chrome && zip -r ../nas-extension-chrome.zip *",
+    "pack_firefox": "rm -f dist/nas-extension-firefox.zip nas-extension-source.zip && zip -r nas-extension-source.zip * -x '*node_modules*' -x '*dist*' && cd dist/nas-extension-firefox && zip -r ../nas-extension-firefox.zip *"
   },
   "private": true,
   "dependencies": {

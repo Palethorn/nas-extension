@@ -5,6 +5,7 @@ import { StateControllerService } from '../services/state-controller.service';
 import { Header } from '../models/header';
 import { Logger } from 'nas-logger';
 import { NotificationService } from '../services/notification.service';
+import { StorageService } from '../services/storage.service';
 
 @Component({
   selector: 'app-player-controls',
@@ -20,16 +21,16 @@ export class PlayerControlsComponent {
   @ViewChild('volume') volume!: ElementRef;
   
   player!: Player;
-  tech!: TechInterface;
-  progressBar!: Range;
   volumeBar!: Range;
+  progressBar!: Range;
+  tech!: TechInterface;
   seekLock: boolean = false;
-  currentTime: string = '00:00:00';
-  duration: string = '00:00:00';
   fullscreen: boolean = false;
   icon: string = 'play_arrow';
-  volumeIcon: string = 'volume_mute';
-  premuteVolume: number = 0;
+  duration: string = '00:00:00';
+  currentTime: string = '00:00:00';
+  volumeIcon: string = 'volume_up';
+  alwaysShowFullPlayerControls: boolean = false;
 
   selectedAudioTrack: AudioTrack = {
     lang: 'Default',
@@ -72,21 +73,10 @@ export class PlayerControlsComponent {
 
   constructor(
     public stateControllerService: StateControllerService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private storageService: StorageService
   ) {
-
-    
     stateControllerService.setDebug(false);
-
-    stateControllerService.registerTransitions('player-muted', [
-      { from: 'unmuted', to: 'muted', handle: () => {
-        this.volumeIcon = 'volume_off';
-        this.player.setVolume(0);
-      }},
-      { from: 'muted', to: 'unmuted', handle: () => {
-        this.setVolume(this.premuteVolume);
-      }}
-    ], 'unmuted');
 
     stateControllerService.registerTransitions('settings', [
       {
@@ -109,10 +99,12 @@ export class PlayerControlsComponent {
         }
       }
     ], 'collapsed');
+
+    this.player = new Player();
   }
 
   ngOnInit() {
-    this.player = new Player();
+    
   }
 
   ngAfterViewInit(): void {
@@ -124,16 +116,15 @@ export class PlayerControlsComponent {
       }
 
       this.player.seek(value);
-    }, 0, this.player.getDuration(), 0, 'horizontal', 'controls-item controls-padding');
+    }, null, 0, this.player.getDuration(), 0, 'horizontal', 'controls-item controls-padding');
 
     this.volumeBar = new Range(this.volume.nativeElement, (value: number) => {
       if(isNaN(value)) {
         return;
       }
 
-      this.premuteVolume = value / 100;
-      this.setVolume(value / 100);
-    }, 0, 99, 99, 'horizontal', 'controls-item controls-padding');
+      this.setVolume(value);
+    }, null, 0, 0.99, 0.99, 'horizontal', 'controls-item controls-padding');
 
     window.addEventListener('mousemove', (e: any) => {
       this.displayControls();
@@ -143,7 +134,62 @@ export class PlayerControlsComponent {
 
     for(let i = 0; i < elems.length; i++) {
       elems[i].addEventListener('click', this.animateControlItem.bind(elems[i]));
-    } 
+    }
+
+    document.addEventListener('keydown', (e: any) => {
+
+      if('KeyF' == e.code) {
+        this.toggleFullscreen();
+      }
+
+      if('KeyM' == e.code) {
+        this.toggleMute();
+      }
+
+      if('Space' == e.code) {
+        this.playPause();
+      }
+
+      if('ArrowRight' == e.code) {
+        this.progressBar.setValue(this.progressBar.getValue() + 5, true);
+      }
+
+      if('ArrowLeft' == e.code) {
+        this.progressBar.setValue(this.progressBar.getValue() - 5, true);
+      }
+
+      if('ArrowUp' == e.code) {
+        this.volumeBar.setValue(this.volumeBar.getValue() + 1, true);
+      }
+
+      if('ArrowDown' == e.code) {
+        this.volumeBar.setValue(this.volumeBar.getValue() - 1, true);
+      }
+    });
+
+    this.storageService.get('player-volume', (volume: number) => {
+      console.log('get player-volume', volume);
+
+      if(undefined !== volume) {
+        this.volumeBar.setValue(volume);
+      }
+
+      this.storageService.get('player-muted', (muted: boolean) => {
+        console.log('get player-muted', muted);
+        
+        if(undefined === muted) {
+          return;
+        }
+
+        console.log('get player-muted', muted);
+
+        if(muted) {
+          this.player.mute();
+        }
+
+        this.setVolumeIcon();
+      });
+    });
   }
 
   animateControlItem(e: any) {
@@ -294,11 +340,6 @@ export class PlayerControlsComponent {
   }
 
   attachPlayerEventHandlers() {
-    this.player.addEventHandler('play', (e: any) => {
-      this.premuteVolume = this.volumeBar.value / 100;
-      this.setVolume(this.volumeBar.value / 100);
-    });
-
     this.player.addEventHandler('playing', (e: any) => {
       this.logger.d('play');
       this.stateControllerService.transition('loader', 'collapsed');
@@ -312,7 +353,11 @@ export class PlayerControlsComponent {
         this.selectedQuality = this.qualities[0];
       });
 
-      this.duration = this.formatTimeFromSeconds(this.player.getDuration());
+      let duration = this.player.getDuration();
+
+      if(Number.isFinite(duration)) {
+        this.duration = this.formatTimeFromSeconds(this.player.getDuration());
+      }
     });
 
     this.player.addEventHandler('seeking', () => {
@@ -407,7 +452,6 @@ export class PlayerControlsComponent {
   }
 
   changeLicenseUrlHeaders(licenseUrlHeaders: Array<Header>) {
-    console.log(licenseUrlHeaders);
     this.licenseUrlHeaders = {};
 
     for(let i = 0; i < licenseUrlHeaders.length; i++) {
@@ -418,25 +462,51 @@ export class PlayerControlsComponent {
   }
 
   toggleMute() {
-    if('muted' == this.stateControllerService.getState('player-muted')) {
-      this.stateControllerService.transition('player-muted', 'unmuted');
-      return;
+    if(this.player.isMuted()) {
+      this.player.unmute();
+
+      this.storageService.set('player-muted', false, () => {
+        console.log('set player-muted false');
+      });
+    } else {
+      this.player.mute();
+      this.storageService.set('player-muted', true, () => {
+        console.log('set player-muted true');
+      });
     }
 
-    this.stateControllerService.transition('player-muted', 'muted');
+    this.setVolumeIcon();
   }
 
   setVolume(volume: number) {
-    this.stateControllerService.setState('player-muted', 'unmuted');
     this.player.setVolume(volume);
+    this.setVolumeIcon();
 
-    if(volume == 0) {
+    this.storageService.set('player-volume', volume, () => {
+      console.log('set player-volume', volume);
+    });
+  }
+
+  setVolumeIcon() {
+    console.log(this.player.getVolume());
+
+    if(this.player.isMuted()) {
+      this.volumeIcon = 'volume_off';
+      return;
+    }
+
+    if(this.player.getVolume() == 0) {
       this.volumeIcon = 'volume_mute';
-    } else if(volume > 0 && volume <= .5) {
+    } else if(this.player.getVolume() > 0 && this.player.getVolume() <= .5) {
       this.volumeIcon = 'volume_down';
-    } else if(volume > .5) {
+    } else if(this.player.getVolume() > .5) {
       this.volumeIcon = 'volume_up';
     }
+  }
+
+  changeAlwaysShowFullPlayerControls(val: boolean) {
+    console.log(val);
+    this.alwaysShowFullPlayerControls = val;
   }
 
   ngOnDestroy() {

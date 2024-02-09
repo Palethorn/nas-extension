@@ -8,11 +8,13 @@ export class Range {
     path: HTMLDivElement;
     fill: HTMLElement;
     percentage: number = 0;
-    valueChanged: CallableFunction;
+    valueChanged: CallableFunction|null;
+    percentageChanged: CallableFunction|null;
 
     constructor(
         target: HTMLDivElement,
-        valueChanged: CallableFunction,
+        valueChanged: CallableFunction|null,
+        percentageChanged: CallableFunction|null,
         min_value: number,
         max_value:number,
         value: number,
@@ -29,6 +31,7 @@ export class Range {
 
         this.target = target;
         this.valueChanged = valueChanged;
+        this.percentageChanged = percentageChanged;
         this.seek_lock = false;
         this.value = value;
         this.min_value = min_value;
@@ -87,7 +90,15 @@ export class Range {
         this.max_value = value;
     }
 
-    setValue(value: number) {
+    getValue() {
+        return this.value;
+    }
+
+    getPercentage() {
+        return this.percentage;
+    }
+
+    setValue(value: number, triggerCallback: boolean = false) {
         if(this.seek_lock) {
             return;
         }
@@ -96,23 +107,25 @@ export class Range {
             value = this.max_value - value;
         }
 
-        if(value > this.max_value && value < this.min_value) {
-            return;
+        if(value >= this.max_value) {
+            value = this.max_value;
+        }
+
+        if(value <= this.min_value) {
+            value = this.min_value;
         }
         
         this.value = value;
         this.percentage = (value - this.min_value) / (this.max_value - this.min_value);
 
-        if(this.type == 'vertical') {
-            this.fill.style.height = (this.percentage * 100) + '%';
-        }
+        this.represent();
 
-        if(this.type == 'horizontal') {
-            this.fill.style.width = (this.percentage * 100) + '%';
+        if(this.valueChanged && triggerCallback) {
+            this.valueChanged(this.value);
         }
     }
 
-    setPercentage(percentage: number) {
+    setPercentage(percentage: number, triggerCallback: boolean = false) {
         if(percentage < 0) {
             percentage = 0;
         }
@@ -124,6 +137,14 @@ export class Range {
         this.value = percentage * (this.max_value - this.min_value)
         this.percentage = percentage;
 
+        this.represent();
+
+        if(this.percentageChanged && triggerCallback) {
+            this.percentageChanged(this.percentage);
+        }
+    }
+
+    represent() {
         if(this.type == 'vertical') {
             this.fill.style.height = (this.percentage * 100) + '%';
         }

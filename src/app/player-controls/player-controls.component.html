@@ -1,9 +1,9 @@
 <div id="player-controls" (mouseover)="freezeControls()" (mouseleave)="unfreezeControls()" [ngClass]="{ 'visibility-collapsed': 'collapsed' == stateControllerService.getState('controls') }">
     <div (click)="playPause();" id="controls-play-pause" class="controls-item controls-btn"><span style="width: 40px; height: 40px;" class="material-icons control-item">{{icon}}</span></div>
-    <div id="controls-time" [ngClass]="{ 'visibility-collapsed': player.isLive() }" class="controls-item controls-padding"><span>{{currentTime}}</span></div>
-    <div id="controls-progress" [ngClass]="{ 'visibility-collapsed': player.isLive() }" class="controls-item controls-padding" #progress>
+    <div id="controls-time" [ngClass]="{ 'visibility-collapsed': player.isLive() && false == alwaysShowFullPlayerControls }" class="controls-item controls-padding"><span>{{currentTime}}</span></div>
+    <div id="controls-progress" [ngClass]="{ 'visibility-collapsed': player.isLive() && false == alwaysShowFullPlayerControls }" class="controls-item controls-padding" #progress>
     </div>
-    <div id="controls-duration" [ngClass]="{ 'visibility-collapsed': player.isLive() }" class="controls-item controls-padding"><span>{{duration}}</span></div>
+    <div id="controls-duration" [ngClass]="{ 'visibility-collapsed': player.isLive() && false == alwaysShowFullPlayerControls }" class="controls-item controls-padding"><span>{{duration}}</span></div>
     <div 
         id="controls-volume-icon"
         class="controls-item controls-btn"
@@ -33,5 +33,6 @@
     (streamingUrlChange)="changeStreamingUrl($event)"
     (licenseUrlHeadersChange)="changeLicenseUrlHeaders($event)"
     (streamingUrlHeadersChange)="changeStreamingUrlHeaders($event)"
+    (alwaysShowFullPlayerControlsChange)="changeAlwaysShowFullPlayerControls($event)"
 
     [ngClass]="{ 'visibility-collapsed': 'collapsed' == stateControllerService.getState('settings') }"/>

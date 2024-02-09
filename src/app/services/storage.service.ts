@@ -15,44 +15,69 @@ export class StorageService {
     this.logger = new Logger('StorageService', true);
 
     if(undefined != chrome.storage) {
+      console.log('STORAGE_API_CHROME');
       this.storageApi = StorageService.STORAGE_API_CHROME;
     }
   }
 
-  get(getSuccess: CallableFunction, key: string) {
+  get(key: string, getSuccess: CallableFunction|null = null) {
     if(StorageService.STORAGE_API_CHROME == this.storageApi) {
       chrome.storage.local.get([key]).then((result) => {
-        getSuccess(result['key']);
+        if(null != getSuccess) {
+          getSuccess(result[key]);
+        }
       });
+
+      return;
     }
 
     var value = localStorage.getItem(key);
+    
     if(value) {
       value = JSON.parse(value);
     }
 
-    getSuccess(value);
+    if(null != getSuccess) {
+      getSuccess(value);
+    }
   }
 
-  set(setSuccess: CallableFunction, key: string, value: any) {
+  set(key: string, value: any, setSuccess: CallableFunction|null = null) {
     if(StorageService.STORAGE_API_CHROME == this.storageApi) {
-      chrome.storage.local.set({ key: value }).then(() => {
-        setSuccess();
+      let obj: any = {};
+      obj[key] = value;
+
+      chrome.storage.local.set(obj).then(() => {
+        if(null != setSuccess) {
+          setSuccess();
+        }
       });
+
+      return;
     }
 
     localStorage.setItem(key, JSON.stringify(value));
-    setSuccess(value);
+
+    if(null != setSuccess) {
+      setSuccess();
+    }
   }
 
-  remove(removeSuccess: CallableFunction, key: string) {
+  remove(key: string, removeSuccess: CallableFunction|null = null) {
     if(StorageService.STORAGE_API_CHROME == this.storageApi) {
       chrome.storage.local.remove(key).then(() => {
-        removeSuccess();
-      })
+        if(null != removeSuccess) {
+          removeSuccess();
+        }
+      });
+
+      return;
     }
 
     localStorage.removeItem(key);
-    removeSuccess();
+
+    if(null != removeSuccess) {
+      removeSuccess();
+    }
   }
 }
