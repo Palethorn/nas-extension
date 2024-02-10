@@ -40,6 +40,10 @@ export class StateControllerService {
     this.transitions[namespace].locked = false;
   }
 
+  getIsLocked(namespace: string) {
+    return this.transitions[namespace].locked;
+  }
+  
   getState(namespace: string) {
     if(namespace in this.transitions) {
       return this.transitions[namespace].state;

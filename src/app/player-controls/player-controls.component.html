@@ -33,6 +33,7 @@
     (streamingUrlChange)="changeStreamingUrl($event)"
     (licenseUrlHeadersChange)="changeLicenseUrlHeaders($event)"
     (streamingUrlHeadersChange)="changeStreamingUrlHeaders($event)"
+    (showNativePlayerControlsChange)="changeShowNativePlayerControls($event)"
     (alwaysShowFullPlayerControlsChange)="changeAlwaysShowFullPlayerControls($event)"
 
     [ngClass]="{ 'visibility-collapsed': 'collapsed' == stateControllerService.getState('settings') }"/>

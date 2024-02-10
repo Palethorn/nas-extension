@@ -141,6 +141,15 @@
             </div>
         </div>
 
+        <div class="form-field-container">
+            <div class="form-field-container-inline">
+                <label for="native-player-controls-checkbox">Show native player controls</label>
+            </div>
+            <div class="form-field-container-inline">
+                <input type="checkbox" [(ngModel)]="showNativePlayerControls" (ngModelChange)="showNativePlayerControlsChanged()" id="native-player-controls-checkbox" />
+            </div>
+        </div>
+
     </div>
     <div 
         class="settings-section"

@@ -28,6 +28,7 @@ export class SettingsComponent {
   @Output() streamingUrlChange: EventEmitter<string> = new EventEmitter();
   @Output() audioTrackChange: EventEmitter<AudioTrack> = new EventEmitter();
   @Output() licenseUrlHeadersChange: EventEmitter<Array<Header>> = new EventEmitter();
+  @Output() showNativePlayerControlsChange: EventEmitter<boolean> = new EventEmitter();
   @Output() streamingUrlHeadersChange: EventEmitter<Array<Header>> = new EventEmitter();
   @Output() alwaysShowFullPlayerControlsChange: EventEmitter<boolean> = new EventEmitter();
 
@@ -43,9 +44,10 @@ export class SettingsComponent {
   savedStreams: Array<StreamInfo> = [];
   licenseUrlHeaders: Array<Header> = [];
   streamingUrlHeaders: Array<Header> = [];
+  showNativePlayerControls: boolean = false;
   settingsSection: string = 'source-settings';
-  logger:Logger = new Logger('SettingsComponent');
   alwaysShowFullPlayerControls: boolean = false;
+  logger:Logger = new Logger('SettingsComponent');
 
   speeds: any = [
     .25,
@@ -89,6 +91,16 @@ export class SettingsComponent {
       }
 
       this.alwaysShowFullPlayerControls = value;
+      this.alwaysShowFullPlayerControlsChange.emit(value);
+    });
+
+    this.storageService.get('show-native-player-controls', (value: boolean) => {
+      if(undefined === value) {
+        return;
+      }
+
+      this.showNativePlayerControls = value;
+      this.showNativePlayerControlsChange.emit(value);
     });
   }
 
@@ -110,6 +122,7 @@ export class SettingsComponent {
     this.licenseUrlHeadersChange.emit(this.licenseUrlHeaders);
     this.streamingUrlHeadersChange.emit(this.streamingUrlHeaders);
     this.alwaysShowFullPlayerControlsChange.emit(this.alwaysShowFullPlayerControls);
+    this.showNativePlayerControlsChange.emit(this.showNativePlayerControls);
 
     this.streamLoad.emit(this.streamingUrl);
   }
@@ -227,5 +240,10 @@ export class SettingsComponent {
   alwaysShowFullPlayerControlsChanged() {
     this.alwaysShowFullPlayerControlsChange.emit(this.alwaysShowFullPlayerControls);
     this.storageService.set('always-show-full-player-controls', this.alwaysShowFullPlayerControls);
+  }
+
+  showNativePlayerControlsChanged() {
+    this.showNativePlayerControlsChange.emit(this.showNativePlayerControls);
+    this.storageService.set('show-native-player-controls', this.showNativePlayerControls);
   }
 } 

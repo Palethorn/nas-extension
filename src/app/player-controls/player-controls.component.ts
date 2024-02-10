@@ -30,6 +30,7 @@ export class PlayerControlsComponent {
   duration: string = '00:00:00';
   currentTime: string = '00:00:00';
   volumeIcon: string = 'volume_up';
+  showNativePlayerControls: boolean = false;
   alwaysShowFullPlayerControls: boolean = false;
 
   selectedAudioTrack: AudioTrack = {
@@ -95,7 +96,9 @@ export class PlayerControlsComponent {
       },
       {
         from: 'visible', to: 'collapsed', object: this, delay: 2500, handle: () => {
-          document.body.style.cursor = 'none';
+          if(!stateControllerService.getIsLocked('controls')) {
+            document.body.style.cursor = 'none';
+          }
         }
       }
     ], 'collapsed');
@@ -513,8 +516,19 @@ export class PlayerControlsComponent {
   }
 
   changeAlwaysShowFullPlayerControls(val: boolean) {
-    console.log(val);
     this.alwaysShowFullPlayerControls = val;
+  }
+
+  changeShowNativePlayerControls(val: boolean) {
+    this.showNativePlayerControls = val;
+
+    if(true == val) {
+      this.stateControllerService.lock('controls', 'collapsed');
+      this.videoElement.controls = true;
+    } else {
+      this.stateControllerService.unlock('controls');
+      this.videoElement.controls = false;
+    }
   }
 
   ngOnDestroy() {
