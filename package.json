@@ -29,7 +29,7 @@
     "@types/chrome": "^0.0.260",
     "material-icons": "^1.13.12",
     "nas-logger": "^1.0.0",
-    "nas-player": "file:../nas-player",
+    "nas-player": "^1.0.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.13.0"
