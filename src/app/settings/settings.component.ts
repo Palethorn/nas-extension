@@ -32,7 +32,6 @@ export class SettingsComponent {
   @Output() streamingUrlHeadersChange: EventEmitter<Array<Header>> = new EventEmitter();
   @Output() alwaysShowFullPlayerControlsChange: EventEmitter<boolean> = new EventEmitter();
 
-
   hrefUrl: string = '';
   licenseUrl: string = '';
   m3uPlaylist: string = '';

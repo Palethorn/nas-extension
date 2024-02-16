@@ -43,7 +43,7 @@
             class="settings-menu-item" 
             (click)="showSection('about')"
             [ngClass]="{ 'settings-menu-item-active': 'about' == settingsSection }">
-            About
+            Links
         </div>
 
         <div style="float:right; width: 20px; cursor: pointer; height: 20px; margin-right: 10px; margin-left: 10px;" (click)="toggleSettings()">
@@ -277,30 +277,44 @@
                 <li><a target="_blank" href="https://music.apple.com/us/artist/shiro-ryuu/1666369706">Apple Music</a></li>
                 <li><a target="_blank" href="https://open.spotify.com/artist/0ZlEd7woVoVeooBpBWaxGh">Spotify</a></li>
                 <li><a target="_blank" href="https://www.deezer.com/us/artist/197843387">Deezer</a></li>
+                <li><a target="_blank" href="https://shiroryuu.bandcamp.com/">Bandcamp</a></li>
                 <li>iTunes</li>
                 <li>Tidal</li>
             </ul>
         </div>
 
+
         <div class="form-field-container">
-            <a target="_blank" href="https://paypal.me/nativeadaptivestream"><span></span>Donate using PayPal</a>
+            Follow me on social <span class="material-icons">group</span>
+            <ul>
+                <li><a target="_blank" href="https://www.youtube.com/@shiro_ryuu">Personal Youtube</a></li>
+                <li><a target="_blank" href="https://www.instagram.com/palethorn/">Instagram</a></li>
+                <li><a target="_blank" href="https://www.threads.net/@palethorn">Threads</a></li>
+            </ul>
         </div>
 
         <div class="form-field-container">
-            <a href="monero:86vY4r573cpBSs2RmLT6H9EGpw8LihAbL75Qxcspg9YW3j4sXB6BUVHLLbypXm6tR5hGg2eqfEJxDF2MgZYzFU618jddxVR"><span></span>Donate using Monero</a>
-            <div><img width="150" height="150" src="assets/monero_address.png" /></div>
+            Donate <span class="material-icons">favorite</span>
+            <ul>
+                <li>
+                    <a target="_blank" href="https://paypal.me/nativeadaptivestream"><span></span>Donate using PayPal</a>
+                </li>
+                <li>
+                    <a href="monero:86vY4r573cpBSs2RmLT6H9EGpw8LihAbL75Qxcspg9YW3j4sXB6BUVHLLbypXm6tR5hGg2eqfEJxDF2MgZYzFU618jddxVR"><span></span>Donate using Monero</a>
+                    <div><img width="150" height="150" src="assets/monero_address.png" /></div>
+                </li>
+                <li>
+                    <a href="bitcoin:bc1qex67zfjfnv57w436p2uhdmxdlyu8dyy5lghrck"><span></span>Donate using BTC</a>
+                    <div><img width="150" height="150" src="assets/bitcoin_address.png" /></div>
+                </li>
+            </ul>
         </div>
 
         <div class="form-field-container">
-            <a href="bitcoin:bc1qex67zfjfnv57w436p2uhdmxdlyu8dyy5lghrck"><span></span>Donate using BTC</a>
-            <div><img width="150" height="150" src="assets/bitcoin_address.png" /></div>
-        </div>
-
-        <div class="form-field-container">
-            <a href="/release_notes.html">Release Notes</a>
+            <a target="_blank" href="/release_notes.html">Release Notes</a>
         </div>
         <div class="form-field-container">
-            <a href="https://github.com/Palethorn/nas-extension/blob/master/Privacy%20Policy.pdf">Privacy Policy</a>
+            <a target="_blank" href="https://github.com/Palethorn/nas-extension/blob/master/Privacy%20Policy.pdf">Privacy Policy</a>
         </div>
     </div>
 </div>

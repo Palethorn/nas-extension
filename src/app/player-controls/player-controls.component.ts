@@ -81,10 +81,14 @@ export class PlayerControlsComponent {
 
     stateControllerService.registerTransitions('settings', [
       {
-        from: 'collapsed', to: 'visible', object: this, handle: null
+        from: 'collapsed', to: 'visible', object: this, handle: () => {
+          document.removeEventListener('keydown', this.keyEvents);
+        }
       },
       {
-        from: 'visible', to: 'collapsed', object: this, handle: null
+        from: 'visible', to: 'collapsed', object: this, handle: () => {
+          document.addEventListener('keydown', this.keyEvents);
+        }
       }
     ], 'collapsed');
 
@@ -139,44 +143,7 @@ export class PlayerControlsComponent {
       elems[i].addEventListener('click', this.animateControlItem.bind(elems[i]));
     }
 
-    document.addEventListener('keydown', (e: any) => {
-
-      if('KeyF' == e.code) {
-        this.toggleFullscreen();
-      }
-
-      if('KeyM' == e.code) {
-        this.toggleMute();
-      }
-
-      if('Space' == e.code) {
-        this.playPause();
-      }
-
-      if('ArrowRight' == e.code) {
-        this.progressBar.setValue(this.progressBar.getValue() + 5, true);
-      }
-
-      if('ArrowLeft' == e.code) {
-        this.progressBar.setValue(this.progressBar.getValue() - 5, true);
-      }
-
-      if('ArrowUp' == e.code) {
-        this.volumeBar.setValue(this.volumeBar.getValue() + .1, true);
-      }
-
-      if('ArrowDown' == e.code) {
-        this.volumeBar.setValue(this.volumeBar.getValue() - .1, true);
-      }
-
-      if('KeyS' == e.code) {
-        if('collapsed' == this.stateControllerService.getState('settings')) {
-          this.stateControllerService.transition('settings', 'visible');
-        } else {
-          this.stateControllerService.transition('settings', 'collapsed');
-        }
-      }
-    });
+    document.addEventListener('keydown', this.keyEvents);
 
     this.storageService.get('player-volume', (volume: number) => {
       console.log('get player-volume', volume);
@@ -201,6 +168,46 @@ export class PlayerControlsComponent {
         this.setVolumeIcon();
       });
     });
+  }
+
+  keyEvents = (e: any) => {
+    console.log(e);
+      
+    if('KeyF' == e.code) {
+      this.toggleFullscreen();
+    }
+
+    if('KeyM' == e.code) {
+      this.toggleMute();
+    }
+
+    if('Space' == e.code) {
+      this.playPause();
+    }
+
+    if('ArrowRight' == e.code) {
+      this.progressBar.setValue(this.progressBar.getValue() + 5, true);
+    }
+
+    if('ArrowLeft' == e.code) {
+      this.progressBar.setValue(this.progressBar.getValue() - 5, true);
+    }
+
+    if('ArrowUp' == e.code) {
+      this.volumeBar.setValue(this.volumeBar.getValue() + .1, true);
+    }
+
+    if('ArrowDown' == e.code) {
+      this.volumeBar.setValue(this.volumeBar.getValue() - .1, true);
+    }
+
+    if('KeyS' == e.code) {
+      if('collapsed' == this.stateControllerService.getState('settings')) {
+        this.stateControllerService.transition('settings', 'visible');
+      } else {
+        this.stateControllerService.transition('settings', 'collapsed');
+      }
+    }
   }
 
   animateControlItem(e: any) {
@@ -384,13 +391,11 @@ export class PlayerControlsComponent {
     this.player.addEventHandler('error', (e:any) => {
       this.logger.e(e);
       this.notificationService.show('Player error', e.message);
-      this.stateControllerService.transition('settings', 'visible');
     });
 
     this.player.addEventHandler('hlsError', (e:any) => {
       this.logger.e(e.details);
       this.notificationService.show('Player error', e.details);
-      this.stateControllerService.transition('settings', 'visible');
     });
 
     this.player.addEventHandler('streamInitialized', () => {

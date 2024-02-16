@@ -1,9 +1,7 @@
 function saveOptions() {
-    // var maxQuality = document.querySelector('#maxQuality').checked;
     var customDnrRules = JSON.parse(document.querySelector('#dnr-rules').value);
 
     chrome.storage.local.set({
-        // maxQuality: maxQuality,
         customDnrRules: customDnrRules
     }, function() {
         chrome.runtime.sendMessage({ type: 'set-custom-dnr-rules', rules: customDnrRules });
@@ -21,11 +19,9 @@ function restoreOptions() {
     console.log('restoreOptions');
 
     chrome.storage.local.get({
-        // maxQuality: false,
         customDnrRules: [],
         defaultDnrRules: []
     }, function(items) {
-        // document.getElementById('maxQuality').checked = items.maxQuality;
 
         if(items.customDnrRules.length > 0) {
             document.querySelector('#dnr-rules').value = JSON.stringify(items.customDnrRules, null, 2);

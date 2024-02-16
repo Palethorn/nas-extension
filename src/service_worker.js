@@ -84,7 +84,7 @@ chrome.runtime.onInstalled.addListener(function () {
         id: 'link-text'
     });
 
-    chrome.tabs.create({ 'url': chrome.runtime.getURL('release_notes.html') });
+    // chrome.tabs.create({ 'url': chrome.runtime.getURL('release_notes.html') });
 });
 
 console.log('adding message receiver');
