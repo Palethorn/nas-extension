@@ -250,7 +250,8 @@ export class PlayerControlsComponent {
       {
           "com.widevine.alpha": {
               "serverURL": this.licenseUrl,
-              "httpRequestHeaders": licenseUrlHeaders
+              "httpRequestHeaders": licenseUrlHeaders,
+              "priority": 0
           }
       },
       (e: any) => {
