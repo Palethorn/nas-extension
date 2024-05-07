@@ -11,9 +11,9 @@
     "build_edge": "cp src/chrome_manifest.json src/manifest.json && ng build --configuration production --output-path dist/nas-extension-edge",
     "watch_chrome": "cp src/chrome_manifest.json src/manifest.json && ng build --watch --configuration development --output-path dist/nas-extension-chrome",
     "watch_firefox": "cp src/firefox_manifest.json src/manifest.json && ng build --watch --configuration development --output-path dist/nas-extension-firefox",
-    "pack_chrome": "rm -f dist/nas-extension-chrome.zip && cd dist/nas-extension-chrome && tar -a -c -f ../nas-extension-chrome.zip *",
-    "pack_firefox": "rm -f dist/nas-extension-firefox.zip nas-extension-source.zip && cp src/firefox_manifest.json src/manifest.json && tar -a -c -f nas-extension-source.zip * -x '*node_modules*' -x '*dist*' && cd dist/nas-extension-firefox && tar -a -c -f ../nas-extension-firefox.zip *",
-    "pack_edge": "rm -f dist/nas-extension-edge.zip && cd dist/nas-extension-edge && tar -a -c -f ../nas-extension-edge.zip *",
+    "pack_chrome": "rm -f dist/nas-extension-chrome.zip && cd dist/nas-extension-chrome && zip -r ../nas-extension-chrome.zip .",
+    "pack_firefox": "./pack_firefox.sh",
+    "pack_edge": "rm -f dist/nas-extension-edge.zip && cd dist/nas-extension-edge && zip -r ../nas-extension-edge.zip .",
     "test": "ng test"
   },
   "private": true,
@@ -29,7 +29,7 @@
     "@types/chrome": "^0.0.260",
     "material-icons": "^1.13.12",
     "nas-logger": "^1.0.0",
-    "nas-player": "file:../nas-player",
+    "nas-player": "^1.0.5",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.13.0"
