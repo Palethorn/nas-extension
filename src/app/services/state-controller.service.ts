@@ -1,110 +1,120 @@
 import { Injectable } from '@angular/core';
 
+export interface TransitionDefinition {
+  from: string;
+  to: string;
+  object?: unknown;
+  handle?: (() => void) | null;
+  delay?: number;
+}
+
+interface Transition {
+  namespace: string;
+  timeout_id: ReturnType<typeof setTimeout> | null;
+  state: string;
+  definitions: TransitionDefinition[];
+  locked: boolean;
+}
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-
 export class StateControllerService {
+  transitions: Record<string, Transition> = {};
+  debug = false;
 
-  transitions: any = {};
-  debug: boolean = false;
-
-  constructor() { }
-
-  log(msg: any) {
-      if(this.debug) {
-          console.log(msg);
-      }
+  log(msg: unknown): void {
+    if (this.debug) {
+      console.log(msg);
+    }
   }
 
-  registerTransitions(namespace: string, definitions: any, state: string) {
-      this.transitions[namespace] = {
-        namespace: namespace,
-        timeout_id: null,
-        state: state,
-        definitions: definitions,
-        locked: false
-      };
+  registerTransitions(namespace: string, definitions: TransitionDefinition[], state: string): void {
+    this.transitions[namespace] = {
+      namespace: namespace,
+      timeout_id: null,
+      state: state,
+      definitions: definitions,
+      locked: false,
+    };
 
-      this.log(this.transitions);
+    this.log(this.transitions);
   }
 
-  lock(namespace: string, state: string) {
+  lock(namespace: string, state: string): void {
     this.log('Locking ' + namespace);
     this.transition(namespace, state);
     this.transitions[namespace].locked = true;
   }
 
-  unlock(namespace: string) {
+  unlock(namespace: string): void {
     this.log('Unlocking ' + namespace);
     this.transitions[namespace].locked = false;
   }
 
-  getIsLocked(namespace: string) {
+  getIsLocked(namespace: string): boolean {
     return this.transitions[namespace].locked;
   }
-  
-  getState(namespace: string) {
-    if(namespace in this.transitions) {
+
+  getState(namespace: string): string {
+    if (namespace in this.transitions) {
       return this.transitions[namespace].state;
     }
 
     return '';
   }
 
-  setState(namespace: string, state: string) {
-      this.transitions[namespace].state = state;
+  setState(namespace: string, state: string): void {
+    this.transitions[namespace].state = state;
   }
 
-  transition(namespace: string, to: string) {
-      var transitions = this.transitions[namespace];
+  transition(namespace: string, to: string): void {
+    const transitions = this.transitions[namespace];
 
-      if(!transitions) {
-        this.log('Transitions for ' + namespace + ' not found');
-        return;
-      }
+    if (!transitions) {
+      this.log('Transitions for ' + namespace + ' not found');
+      return;
+    }
 
-      if(transitions.locked != undefined && transitions.locked) {
-        this.log(namespace + ' is locked');
-        return;
-      }
+    if (transitions.locked) {
+      this.log(namespace + ' is locked');
+      return;
+    }
 
-      for(var i = 0; i < transitions.definitions.length; i++) {
-          var definition = transitions.definitions[i];
+    for (const definition of transitions.definitions) {
+      if (definition.to === to) {
+        if (definition.from !== transitions.state) {
+          continue;
+        }
 
-          if(definition.to == to) {
-              if(definition.from != transitions.state) {
-                  continue;
-              }
+        this.log(definition);
 
-              this.log(definition);
-              
-              if(transitions.timeout_id) {
-                clearTimeout(transitions.timeout_id);
-              }
-              
-              if(definition.delay != undefined) {
-                  transitions.timeout_id = setTimeout(function() {
-                      transitions.state = to;
+        if (transitions.timeout_id) {
+          clearTimeout(transitions.timeout_id);
+        }
 
-                      if(definition.handle) {
-                        definition.handle(definition);
-                      }
-                  }, definition.delay);
-              } else {
-                  transitions.state = to;
+        if (definition.delay !== undefined) {
+          transitions.timeout_id = setTimeout(() => {
+            transitions.state = to;
 
-                  if(definition.handle) {
-                    definition.handle(definition);
-                  }
-              }
+            if (definition.handle) {
+              definition.handle();
+            }
+          }, definition.delay);
+        } else {
+          transitions.state = to;
 
-              break;
+          if (definition.handle) {
+            definition.handle();
           }
+        }
+
+        break;
       }
+    }
   }
 
-  setDebug(debug: boolean) {
-      this.debug = debug;
+  setDebug(debug: boolean): void {
+    this.debug = debug;
   }
 }

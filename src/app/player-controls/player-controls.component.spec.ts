@@ -8,11 +8,10 @@ describe('PlayerControlsComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [PlayerControlsComponent]
+      imports: [PlayerControlsComponent],
     });
     fixture = TestBed.createComponent(PlayerControlsComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {

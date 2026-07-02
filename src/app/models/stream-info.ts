@@ -1,10 +1,10 @@
-import { Header } from "./header";
+import { Header } from './header';
 
 export interface StreamInfo {
-    name: string,
-    streamingUrl: string;
-    licenseUrl: string;
-    subtitleUrl: string;
-    streamingUrlHeaders: Array<Header>;
-    licenseUrlHeaders: Array<Header>;
+  name: string;
+  streamingUrl: string;
+  licenseUrl: string;
+  subtitleUrl: string;
+  streamingUrlHeaders: Header[];
+  licenseUrlHeaders: Header[];
 }

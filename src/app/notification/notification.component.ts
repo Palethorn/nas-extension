@@ -1,20 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NotificationService } from '../services/notification.service';
 import { StateControllerService } from '../services/state-controller.service';
 
 @Component({
   selector: 'app-notification',
   templateUrl: './notification.component.html',
-  styleUrls: ['./notification.component.css']
+  styleUrl: './notification.component.css',
 })
 export class NotificationComponent {
-  constructor(
-    public notificationService: NotificationService,
-    public stateControllerService: StateControllerService
-  ) {
-  }
+  protected readonly notificationService = inject(NotificationService);
+  private readonly stateControllerService = inject(StateControllerService);
 
-  close() {
+  close(): void {
     this.stateControllerService.transition('notification', 'collapsed');
   }
 }

@@ -1,51 +1,76 @@
 <style>
-body {
-    background-color: #1d1d1d;
-}
+  :root {
+    color-scheme: dark light;
+    --bg: #1d1d1d;
+    --text: #ffffff;
+    --accent: #c54310;
+    --btn-hover-bg: #ffffff;
+  }
 
-a {
-	background-color: #1d1d1d;
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f2f2f2;
+      --text: #1a1a1a;
+    }
+  }
+
+  body {
+    background-color: var(--bg);
+  }
+
+  a {
+    background-color: var(--bg);
     border: none;
     border-radius: 2px;
-    color: white;
+    color: var(--text);
     position: relative;
     height: 36px;
     margin: 0;
     min-width: 64px;
     padding: 0 16px;
     display: block;
-    font-family: "Roboto","Helvetica","Arial",sans-serif;
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
     font-size: 14px;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0;
     overflow: hidden;
     will-change: box-shadow;
-    transition: box-shadow .2s cubic-bezier(.4,0,1,1),background-color .2s cubic-bezier(.4,0,.2,1),color .2s cubic-bezier(.4,0,.2,1);
+    transition:
+      box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
+      background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+      color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     outline: none;
     cursor: pointer;
     text-decoration: none;
     text-align: center;
     line-height: 36px;
-    width:120px;
-}
+    width: 120px;
+  }
 
-a:hover{
-	background-color: rgb(255, 255, 255);
-    color: #c54310;
-}
-
+  a:hover {
+    background-color: var(--btn-hover-bg);
+    color: var(--accent);
+  }
 </style>
 <a href="#" id="btnApp">Open Extension</a>
 <a href="#" id="btnUpdate">DISABLE DNR</a>
 <a href="#" id="btnSettings">Options</a>
 <a href="https://github.com/Palethorn/nas-extension/issues" target="_blank">Report issue</a>
 <a href="release_notes.html" target="_blank">Release Notes</a>
-<a href="https://github.com/Palethorn/nas-extension/blob/master/Privacy%20Policy.pdf" target="_blank">Privacy Policy</a>
+<a
+  href="https://github.com/Palethorn/nas-extension/blob/master/Privacy%20Policy.pdf"
+  target="_blank"
+  >Privacy Policy</a
+>
 <a href="#">Buy me a drink:</a>
 <a href="https://paypal.me/nativeadaptivestream" target="_blank">Paypal</a>
 <a href="#">Monero:</a>
-<a style="width: 120px; height: 100px;"><img width="100" height="100" src="assets/monero_address.png" /></a>
+<a style="width: 120px; height: 100px"
+  ><img width="100" height="100" src="assets/monero_address.png"
+/></a>
 <a href="#">Bitcoin:</a>
-<a style="width: 120px; height: 100px;"><img width="100" height="100" src="assets/bitcoin_address.png" /></a>
-<script type="text/javascript" src="popup.js"></script> 
+<a style="width: 120px; height: 100px"
+  ><img width="100" height="100" src="assets/bitcoin_address.png"
+/></a>
+<script type="text/javascript" src="popup.js"></script>

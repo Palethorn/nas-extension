@@ -61,25 +61,30 @@ Requirements:
 
 > npm i
 
-> npm run build 
+Build for a specific browser (output goes to a matching dist/ folder):
 
-or for development 
+> npm run build:chrome
+> npm run build:firefox
+> npm run build:edge
+
+or for development
 
 > ng serve
 
-If you want to modify the extension while loaded in browser
+If you want the extension to rebuild automatically while it's loaded in the browser
 
-> npm run watch
+> npm run watch:chrome
+> npm run watch:firefox
 
 Load unpacked extension to Firefox:
  - Type in about:debugging into address bar
  - Click Load Temporary Add-on
- - Navigate to /project_path/dist/nas-extension/manifest.json
+ - Navigate to /project_path/dist/nas-extension-firefox/manifest.json
 
 Load unpacked extension to Chrome:
  - Type chrome://extensions/ into address bar
  - Click Load Unpacked
- - Navigate to /project_path/dist/nas-extension
+ - Navigate to /project_path/dist/nas-extension-chrome
  - Click Open
 
 # Some Developer Notes

@@ -1,16 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { StateControllerService } from './services/state-controller.service';
+import { PlayerComponent } from './player/player.component';
+import { LoaderComponent } from './loader/loader.component';
+import { NotificationComponent } from './notification/notification.component';
 
 @Component({
   selector: 'app-root',
+  imports: [PlayerComponent, LoaderComponent, NotificationComponent],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrl: './app.component.css',
 })
 export class AppComponent {
-  title = 'nas-player-embed';
+  readonly title = 'nas-player-embed';
 
-  constructor(
-    public stateControllerService: StateControllerService
-  ) {
-  }
+  protected readonly stateControllerService = inject(StateControllerService);
 }

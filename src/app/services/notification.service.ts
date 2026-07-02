@@ -1,26 +1,29 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { StateControllerService } from './state-controller.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NotificationService {
+  private readonly stateControllerService = inject(StateControllerService);
 
-  public title: string = 'Test Title';
-  public message: string = 'Test Message';
+  readonly title = signal('Test Title');
+  readonly message = signal('Test Message');
 
-  constructor(
-    private stateControllerService: StateControllerService
-  ) {
-    stateControllerService.registerTransitions('notification', [
-      { from: 'visible', to: 'collapsed' },
-      { from: 'collapsed', to: 'visible' }
-    ], 'collapsed');
+  constructor() {
+    this.stateControllerService.registerTransitions(
+      'notification',
+      [
+        { from: 'visible', to: 'collapsed' },
+        { from: 'collapsed', to: 'visible' },
+      ],
+      'collapsed'
+    );
   }
 
-  show(title: string, message: string) {
-    this.title = title;
-    this.message = message;
+  show(title: string, message: string): void {
+    this.title.set(title);
+    this.message.set(message);
     this.stateControllerService.transition('notification', 'visible');
   }
 }

@@ -1,74 +1,67 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { AudioTrack, Quality } from 'nas-player';
+import { Logger } from 'nas-logger';
 import { StateControllerService } from '../services/state-controller.service';
 import { Header } from '../models/header';
 import { StreamInfo } from '../models/stream-info';
 import { StorageService } from '../services/storage.service';
-import { HttpClient } from '@angular/common/http';
-import { Logger } from 'nas-logger';
 import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-settings',
+  imports: [FormsModule],
   templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.css']
+  styleUrl: './settings.component.css',
 })
-export class SettingsComponent {
+export class SettingsComponent implements AfterViewInit {
   @Input() qualities!: Quality[];
   @Input() selectedQuality!: Quality;
   @Input() audioTracks!: AudioTrack[];
   @Input() currentAutoQuality!: Quality;
   @Input() selectedAudioTrack!: AudioTrack;
 
-  @Output() streamLoad: EventEmitter<string> = new EventEmitter();
-  @Output() speedChange: EventEmitter<number> = new EventEmitter();
-  @Output() qualityChange: EventEmitter<Quality> = new EventEmitter();
-  @Output() licenseUrlChange: EventEmitter<string> = new EventEmitter();
-  @Output() subtitleUrlChange: EventEmitter<string> = new EventEmitter();
-  @Output() streamingUrlChange: EventEmitter<string> = new EventEmitter();
-  @Output() audioTrackChange: EventEmitter<AudioTrack> = new EventEmitter();
-  @Output() licenseUrlHeadersChange: EventEmitter<Array<Header>> = new EventEmitter();
-  @Output() showNativePlayerControlsChange: EventEmitter<boolean> = new EventEmitter();
-  @Output() streamingUrlHeadersChange: EventEmitter<Array<Header>> = new EventEmitter();
-  @Output() alwaysShowFullPlayerControlsChange: EventEmitter<boolean> = new EventEmitter();
+  @Output() streamLoad = new EventEmitter<string>();
+  @Output() speedChange = new EventEmitter<number>();
+  @Output() qualityChange = new EventEmitter<Quality>();
+  @Output() licenseUrlChange = new EventEmitter<string>();
+  @Output() subtitleUrlChange = new EventEmitter<string>();
+  @Output() streamingUrlChange = new EventEmitter<string>();
+  @Output() audioTrackChange = new EventEmitter<AudioTrack>();
+  @Output() licenseUrlHeadersChange = new EventEmitter<Header[]>();
+  @Output() showNativePlayerControlsChange = new EventEmitter<boolean>();
+  @Output() streamingUrlHeadersChange = new EventEmitter<Header[]>();
+  @Output() alwaysShowFullPlayerControlsChange = new EventEmitter<boolean>();
 
-  hrefUrl: string = '';
-  licenseUrl: string = '';
-  m3uPlaylist: string = '';
-  subtitleUrl: string = '';
-  streamingUrl: string = '';
-  selectedSpeed: number = 1;
-  currentStreamName: string = '';
-  m3uItems: Array<StreamInfo> = [];
-  savedStreams: Array<StreamInfo> = [];
-  licenseUrlHeaders: Array<Header> = [];
-  streamingUrlHeaders: Array<Header> = [];
-  showNativePlayerControls: boolean = false;
-  settingsSection: string = 'source-settings';
-  alwaysShowFullPlayerControls: boolean = false;
-  logger:Logger = new Logger('SettingsComponent');
+  hrefUrl = '';
+  licenseUrl = '';
+  m3uPlaylist = '';
+  subtitleUrl = '';
+  streamingUrl = '';
+  selectedSpeed = 1;
+  currentStreamName = '';
+  m3uItems: StreamInfo[] = [];
+  savedStreams: StreamInfo[] = [];
+  licenseUrlHeaders: Header[] = [];
+  streamingUrlHeaders: Header[] = [];
+  showNativePlayerControls = false;
+  settingsSection = 'source-settings';
+  alwaysShowFullPlayerControls = false;
 
-  speeds: any = [
-    .25,
-    .5,
-    .75,
-    1,
-    1.25,
-    1.5,
-    1.75,
-    2
-  ];
+  readonly speeds: number[] = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
-  constructor(
-    private http: HttpClient,
-    private storageService: StorageService,
-    private notificationService: NotificationService,
-    public stateControllerService: StateControllerService,
-  ) {
-    var urls = window.location.href.split("#");
-    this.hrefUrl = urls[1];
+  private readonly logger = new Logger('SettingsComponent');
+  private readonly http = inject(HttpClient);
+  private readonly storageService = inject(StorageService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly stateControllerService = inject(StateControllerService);
 
-    if(this.hrefUrl.indexOf('.m3u8') == -1 && this.hrefUrl.indexOf('.m3u') > -1) {
+  constructor() {
+    const urls = window.location.href.split('#');
+    this.hrefUrl = urls[1] ?? '';
+
+    if (this.hrefUrl.indexOf('.m3u8') === -1 && this.hrefUrl.indexOf('.m3u') > -1) {
       this.m3uPlaylist = this.hrefUrl;
       this.loadM3UPlaylist();
       this.stateControllerService.transition('settings', 'visible');
@@ -78,14 +71,14 @@ export class SettingsComponent {
       this.streamingUrlChange.emit(this.streamingUrl);
     }
 
-    this.storageService.get('saved_streams', (res: any) => {
-      if(res) {
+    this.storageService.get<StreamInfo[]>('saved_streams', (res) => {
+      if (res) {
         this.savedStreams = res;
       }
     });
 
-    this.storageService.get('always-show-full-player-controls', (value: boolean) => {
-      if(undefined === value) {
+    this.storageService.get<boolean>('always-show-full-player-controls', (value) => {
+      if (value === undefined) {
         return;
       }
 
@@ -93,8 +86,8 @@ export class SettingsComponent {
       this.alwaysShowFullPlayerControlsChange.emit(value);
     });
 
-    this.storageService.get('show-native-player-controls', (value: boolean) => {
-      if(undefined === value) {
+    this.storageService.get<boolean>('show-native-player-controls', (value) => {
+      if (value === undefined) {
         return;
       }
 
@@ -103,21 +96,22 @@ export class SettingsComponent {
     });
   }
 
-  ngAfterViewInit() {
-    if(this.hrefUrl.indexOf('.m3u8') == -1 && this.hrefUrl.indexOf('.m3u') > -1) {
-    } else {
+  ngAfterViewInit(): void {
+    const isM3uPlaylist = this.hrefUrl.indexOf('.m3u8') === -1 && this.hrefUrl.indexOf('.m3u') > -1;
+
+    if (!isM3uPlaylist) {
       this.loadStream();
     }
   }
 
-  toggleSettings() {
-      this.stateControllerService.transition('settings', 'collapsed');
+  toggleSettings(): void {
+    this.stateControllerService.transition('settings', 'collapsed');
   }
 
-  loadStream() {
-    this.licenseUrlChange?.emit(this.licenseUrl);
+  loadStream(): void {
+    this.licenseUrlChange.emit(this.licenseUrl);
     this.subtitleUrlChange.emit(this.subtitleUrl);
-    this.streamingUrlChange?.emit(this.streamingUrl);
+    this.streamingUrlChange.emit(this.streamingUrl);
     this.licenseUrlHeadersChange.emit(this.licenseUrlHeaders);
     this.streamingUrlHeadersChange.emit(this.streamingUrlHeaders);
     this.alwaysShowFullPlayerControlsChange.emit(this.alwaysShowFullPlayerControls);
@@ -126,67 +120,58 @@ export class SettingsComponent {
     this.streamLoad.emit(this.streamingUrl);
   }
 
-  showSection(section: string) {
+  showSection(section: string): void {
     this.settingsSection = section;
   }
 
-  addStreamingUrlHeader() {
-    this.streamingUrlHeaders.push({
-      name: '',
-      value: ''
-    });
-
+  addStreamingUrlHeader(): void {
+    this.streamingUrlHeaders.push({ name: '', value: '' });
     this.streamingUrlHeadersChange.emit(this.streamingUrlHeaders);
   }
 
-  removeStreamingUrlHeader(index: any) {
+  removeStreamingUrlHeader(index: number): void {
     this.streamingUrlHeaders.splice(index, 1);
     this.streamingUrlHeadersChange.emit(this.streamingUrlHeaders);
   }
 
-  addLicenseUrlHeader() {
-    this.licenseUrlHeaders.push({
-      name: '',
-      value: ''
-    });
-
+  addLicenseUrlHeader(): void {
+    this.licenseUrlHeaders.push({ name: '', value: '' });
     this.licenseUrlHeadersChange.emit(this.licenseUrlHeaders);
   }
 
-  removeLicenseUrlHeader(index: any) {
+  removeLicenseUrlHeader(index: number): void {
     this.licenseUrlHeaders.splice(index, 1);
     this.licenseUrlHeadersChange.emit(this.licenseUrlHeaders);
   }
 
-  saveCurrentStream() {
-    if(!this.currentStreamName) {
+  saveCurrentStream(): void {
+    if (!this.currentStreamName) {
       this.notificationService.show('Stream Save Error', 'You need to provide a stream name.');
       return;
     }
 
-    var streamInfo: StreamInfo = {
+    const streamInfo: StreamInfo = {
       name: this.currentStreamName,
       streamingUrl: this.streamingUrl,
       licenseUrl: this.licenseUrl,
       subtitleUrl: this.subtitleUrl,
       licenseUrlHeaders: this.licenseUrlHeaders,
       streamingUrlHeaders: this.streamingUrlHeaders,
-    }
+    };
 
     this.savedStreams.push(streamInfo);
-
     this.storageService.set('saved_streams', this.savedStreams);
   }
 
-  removeSavedStream(i:number) {
-    if(confirm('Are you sure?')) {
+  removeSavedStream(i: number): void {
+    if (confirm('Are you sure?')) {
       this.savedStreams.splice(i, 1);
     }
 
     this.storageService.set('saved_streams', this.savedStreams);
   }
 
-  playSavedStream(streamInfo: StreamInfo) {
+  playSavedStream(streamInfo: StreamInfo): void {
     this.licenseUrl = streamInfo.licenseUrl;
     this.currentStreamName = streamInfo.name;
     this.subtitleUrl = streamInfo.subtitleUrl;
@@ -196,53 +181,53 @@ export class SettingsComponent {
     this.loadStream();
   }
 
-  loadM3UPlaylist() {
+  loadM3UPlaylist(): void {
     this.stateControllerService.transition('loader', 'visible');
     this.logger.d(this.m3uPlaylist);
     this.m3uItems = [];
 
-    this.http.request('GET', this.m3uPlaylist, { responseType:'text' }).subscribe((response) => {
-      var lines = response.split("\n");
+    this.http.request('GET', this.m3uPlaylist, { responseType: 'text' }).subscribe((response) => {
+      const lines = response.split('\n');
 
-      for(var i = 0; i < lines.length; i++) {
-          var line = lines[i];
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
 
-          if('' == line) {
-              continue;
-          }
-
-          if('#EXTM3U' == line) {
-              continue;
-          }
-
-          if(0 == line.indexOf('#EXTINF')) {
-              if(0 == lines[i + 1].indexOf('http')) {
-                  var info = line.split(',');
-
-                  this.m3uItems.push({
-                    name: info[1],
-                    streamingUrl: lines[i + 1],
-                    licenseUrl: '',
-                    subtitleUrl: '',
-                    licenseUrlHeaders: [],
-                    streamingUrlHeaders: [],
-                  });
-              }
-          }
+        if ('' === line) {
+          continue;
         }
 
-        this.logger.d(this.m3uItems);
-        this.stateControllerService.transition('loader', 'collapsed');
+        if ('#EXTM3U' === line) {
+          continue;
+        }
+
+        if (0 === line.indexOf('#EXTINF')) {
+          if (0 === lines[i + 1].indexOf('http')) {
+            const info = line.split(',');
+
+            this.m3uItems.push({
+              name: info[1],
+              streamingUrl: lines[i + 1],
+              licenseUrl: '',
+              subtitleUrl: '',
+              licenseUrlHeaders: [],
+              streamingUrlHeaders: [],
+            });
+          }
+        }
+      }
+
+      this.logger.d(this.m3uItems);
+      this.stateControllerService.transition('loader', 'collapsed');
     });
   }
 
-  alwaysShowFullPlayerControlsChanged() {
+  alwaysShowFullPlayerControlsChanged(): void {
     this.alwaysShowFullPlayerControlsChange.emit(this.alwaysShowFullPlayerControls);
     this.storageService.set('always-show-full-player-controls', this.alwaysShowFullPlayerControls);
   }
 
-  showNativePlayerControlsChanged() {
+  showNativePlayerControlsChanged(): void {
     this.showNativePlayerControlsChange.emit(this.showNativePlayerControls);
     this.storageService.set('show-native-player-controls', this.showNativePlayerControls);
   }
-} 
+}

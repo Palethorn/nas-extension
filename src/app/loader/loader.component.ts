@@ -1,22 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { StateControllerService } from '../services/state-controller.service';
 
 @Component({
   selector: 'app-loader',
   templateUrl: './loader.component.html',
-  styleUrls: ['./loader.component.css']
+  styleUrl: './loader.component.css',
 })
 export class LoaderComponent {
-  constructor(
-    stateControllerService: StateControllerService
-  ) {
-    stateControllerService.registerTransitions('loader', [
-      {
-        from: 'collapsed', to: 'visible', object: this, handle: null
-      },
-      {
-        from: 'visible', to: 'collapsed', object: this, handle: null
-      }
-    ], 'collapsed');
+  private readonly stateControllerService = inject(StateControllerService);
+
+  constructor() {
+    this.stateControllerService.registerTransitions(
+      'loader',
+      [
+        { from: 'collapsed', to: 'visible', object: this, handle: null },
+        { from: 'visible', to: 'collapsed', object: this, handle: null },
+      ],
+      'collapsed'
+    );
   }
 }

@@ -1,9 +1,15 @@
 <app-player></app-player>
 
-<div id="notification-container" [ngClass]="{'visibility-collapsed': 'collapsed' == stateControllerService.getState('notification') }">
-    <app-notification></app-notification>
+<div
+  id="notification-container"
+  [class.visibility-collapsed]="'collapsed' === stateControllerService.getState('notification')"
+>
+  <app-notification></app-notification>
 </div>
 
-<div id="loader-container" [ngClass]="{'visibility-collapsed': 'collapsed' == stateControllerService.getState('loader') }">
-    <app-loader></app-loader>
+<div
+  id="loader-container"
+  [class.visibility-collapsed]="'collapsed' === stateControllerService.getState('loader')"
+>
+  <app-loader></app-loader>
 </div>

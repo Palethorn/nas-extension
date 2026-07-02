@@ -1,167 +1,216 @@
 @import 'material-icons/iconfont/filled.css';
 
+/**
+ * Theme tokens. Dark is the default (identical to the original palette);
+ * a light variant is applied automatically via prefers-color-scheme.
+ */
+:root {
+  color-scheme: dark light;
+
+  --bg: #242424;
+  --bg-elevated: #1d1d1d;
+  --surface: #2e2e2e;
+  --surface-2: #3d3d3d;
+
+  --text: #ffffff;
+  --text-muted: #adadad;
+  --text-inactive: #dbdbdb;
+
+  --accent: #c54310;
+  --accent-text: #ffffff;
+
+  --border: #929292;
+  --border-subtle: #383838;
+
+  --input-bg: #ffffff;
+  --input-text: #000000;
+
+  --scrollbar-track: #000000;
+  --scrollbar-thumb: #808080;
+  --scrollbar-thumb-active: #ffffff;
+
+  --overlay: rgba(0, 0, 0, 0.5);
+  --notification-bg: rgba(39, 39, 39, 0.76);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #fafafa;
+    --bg-elevated: #ffffff;
+    --surface: #f0f0f0;
+    --surface-2: #e4e4e4;
+
+    --text: #1a1a1a;
+    --text-muted: #555555;
+    --text-inactive: #5a5a5a;
+
+    --border: #c4c4c4;
+    --border-subtle: #dddddd;
+
+    --scrollbar-track: #e6e6e6;
+    --scrollbar-thumb: #b0b0b0;
+    --scrollbar-thumb-active: #808080;
+
+    --notification-bg: rgba(245, 245, 245, 0.92);
+  }
+}
 
 @keyframes click_animation {
-    0% {
-      background-color: #c54310;
-    }
-    100% {
-      background-color: #ff000000;
-    }
+  0% {
+    background-color: var(--accent);
+  }
+  100% {
+    background-color: #ff000000;
+  }
 }
 
 * {
-    box-sizing: border-box;
-    font-family: sans-serif;
-    font-size: 12pt;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  font-size: 12pt;
 }
 
 body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    background-color: #242424;
-    color: #ffffff;
-    font-family: sans-serif;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: sans-serif;
 }
 
 a {
-    cursor: pointer;
+  cursor: pointer;
 }
 
-a:link, a:visited {
-    text-decoration: none;
-    color: inherit;
+a:link,
+a:visited {
+  text-decoration: none;
+  color: inherit;
 }
 
 .float-left {
-    float: left;
+  float: left;
 }
 
 .margin-top-10 {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 .margin-left-10 {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 
 button {
-    width: 200px;
-    height: 30px;
-    font-size: 12pt;
-    color: white;
-    background-color: #c54310;
-    border: none;
-    border-radius: 5px;
+  width: 200px;
+  height: 30px;
+  font-size: 12pt;
+  color: var(--accent-text);
+  background-color: var(--accent);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 button:active {
-    border: 1px solid #ffffff;
+  border: 1px solid var(--text);
 }
 
 input {
-    outline: none;
-    color: white;
-    height: 25px;
-    border: none;
-    border-radius: 5px;
-    background-color: white;
+  outline: none;
+  width: 200px;
+  height: 25px;
+  border: none;
+  border-radius: 5px;
+  color: var(--input-text);
+  background-color: var(--input-bg);
 }
 
 input:focus {
-    outline: none;
-    color: black;
-    background-color: #ffffff;
-    box-shadow: 0 0 5px #c54310;
+  outline: none;
+  color: var(--input-text);
+  background-color: var(--input-bg);
+  box-shadow: 0 0 5px var(--accent);
 }
 
 select {
-    color: white;
-    width: 200px;
-    height: 30px;
-    font-size: 11pt;
-    outline-color: #c54310;
-    border-radius: 5px;
-    border: none;
-    background-color: #c54310;
+  width: 200px;
+  height: 30px;
+  font-size: 11pt;
+  color: var(--accent-text);
+  outline-color: var(--accent);
+  border-radius: 5px;
+  border: none;
+  background-color: var(--accent);
 }
 
 option {
-    background-color: white;
-    color: #c54310;
+  background-color: var(--input-bg);
+  color: var(--accent);
 }
 
 .btn-flat-animate {
-    animation: click_animation 400ms 1;
+  animation: click_animation 400ms 1;
 }
 
 .btn-flat {
-    display: inline-block;
+  display: inline-block;
 }
 
 .material-icons {
-    text-align: center;
-    user-select: none;
-    -moz-user-select: none;
-    -webkit-user-select: none;
+  text-align: center;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
 }
 
 .form-field-container {
-    border-bottom: 1px solid #929292;
-    padding-top: 10px;
-    padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
-
 
 .form-field-container-inline {
-    width: 265px;
-    display: inline-block;
-    vertical-align: middle;
-}
-
-input {
-    width: 200px;
-    color: black;
+  width: 265px;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .inline {
-    display: inline-block;
+  display: inline-block;
 }
 
 .visibility-visible {
-    visibility: visible;
+  visibility: visible;
 }
 
-
 .visibility-collapsed {
-    visibility: collapse;
+  visibility: collapse;
 }
 
 /**
  * Scrollbar
  */
- ::-webkit-scrollbar {
-    width: 10px;
+::-webkit-scrollbar {
+  width: 10px;
 }
-  
-  /* Track */
-  ::-webkit-scrollbar-track {
-    border-radius: 0;
-    background: black;
-    /*border: 1px solid grey;*/
+
+/* Track */
+::-webkit-scrollbar-track {
+  border-radius: 0;
+  background: var(--scrollbar-track);
 }
-  
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: grey;
-    border-radius: 0;
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 0;
 }
-  
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:active {
-    background: white;
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:active {
+  background: var(--scrollbar-thumb-active);
 }
 /**
  * End scrollbar

@@ -1,44 +1,29 @@
-import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
-import { StateControllerService } from '../services/state-controller.service';
+import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { PlayerControlsComponent } from '../player-controls/player-controls.component';
 
 @Component({
   selector: 'app-player',
+  imports: [PlayerControlsComponent],
   templateUrl: './player.component.html',
-  styleUrls: ['./player.component.css']
+  styleUrl: './player.component.css',
 })
-
-export class PlayerComponent {
-  @ViewChild('videoElement')
-  videoElement!: ElementRef;
-
-  @ViewChild('videoElementContainer')
-  videoElementContainer!: ElementRef;
-
-  @ViewChild('playerControlsParent')
-  playerControlsParent!: ElementRef;
-
-  metadataId!: string;
-  timeoutId!: any;
-
-  constructor(
-    public stateControllerService: StateControllerService
-  ) {
-  }
-
-  ngOnInit(): void {
-  }
+export class PlayerComponent implements AfterViewInit {
+  @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
+  @ViewChild('videoElementContainer') videoElementContainer!: ElementRef<HTMLDivElement>;
 
   ngAfterViewInit(): void {
     this.resizeVideoContainer();
   }
 
-  resizeVideoContainer() {
-    this.videoElement.nativeElement.style.width = this.videoElementContainer.nativeElement.style.width;
-    this.videoElement.nativeElement.style.height = this.videoElementContainer.nativeElement.style.height;
+  resizeVideoContainer(): void {
+    this.videoElement.nativeElement.style.width =
+      this.videoElementContainer.nativeElement.style.width;
+    this.videoElement.nativeElement.style.height =
+      this.videoElementContainer.nativeElement.style.height;
   }
 
-  @HostListener('window:resize', ['$event'])
-  onResize(event:any) {
-      this.resizeVideoContainer();
+  @HostListener('window:resize')
+  onResize(): void {
+    this.resizeVideoContainer();
   }
 }

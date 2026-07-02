@@ -1,167 +1,213 @@
-import { Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
-import { Range } from 'src/app/lib/range';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  inject,
+  Input,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 import { AudioTrack, DashTech, HlsTech, Player, Quality, TechInterface } from 'nas-player';
+import { Logger } from 'nas-logger';
+import { Range } from '../lib/range';
 import { StateControllerService } from '../services/state-controller.service';
 import { Header } from '../models/header';
-import { Logger } from 'nas-logger';
 import { NotificationService } from '../services/notification.service';
 import { StorageService } from '../services/storage.service';
+import { SettingsComponent } from '../settings/settings.component';
 
 @Component({
   selector: 'app-player-controls',
+  imports: [SettingsComponent],
   templateUrl: './player-controls.component.html',
-  styleUrls: ['./player-controls.component.css']
+  styleUrl: './player-controls.component.css',
 })
-export class PlayerControlsComponent {
+export class PlayerControlsComponent implements AfterViewInit, OnDestroy {
   @Input() parent!: HTMLDivElement;
   @Input() videoElement!: HTMLVideoElement;
 
   @ViewChild('settings') settings!: ElementRef;
-  @ViewChild('progress') progress!: ElementRef;
-  @ViewChild('volume') volume!: ElementRef;
-  
-  player!: Player;
+  @ViewChild('progress') progress!: ElementRef<HTMLDivElement>;
+  @ViewChild('volume') volume!: ElementRef<HTMLDivElement>;
+
+  player: Player;
   volumeBar!: Range;
   progressBar!: Range;
   tech!: TechInterface;
-  seekLock: boolean = false;
-  fullscreen: boolean = false;
-  icon: string = 'play_arrow';
-  duration: string = '00:00:00';
-  currentTime: string = '00:00:00';
-  volumeIcon: string = 'volume_up';
-  showNativePlayerControls: boolean = false;
-  alwaysShowFullPlayerControls: boolean = false;
+  seekLock = false;
+  fullscreen = false;
+  icon = 'play_arrow';
+  duration = '00:00:00';
+  currentTime = '00:00:00';
+  volumeIcon = 'volume_up';
+  showNativePlayerControls = false;
+  alwaysShowFullPlayerControls = false;
 
   selectedAudioTrack: AudioTrack = {
     lang: 'Default',
     name: 'Default',
-    index: 0
-  }
+    index: 0,
+  };
 
   selectedQuality: Quality = {
     index: 0,
     bitrate: 0,
     bitrateStr: '0k',
     width: 0,
-    height: 0
-  }
+    height: 0,
+  };
 
   currentAutoQuality: Quality = {
     index: 0,
     bitrate: 0,
     bitrateStr: '0k',
     width: 0,
-    height: 0
-  }
+    height: 0,
+  };
 
   streamingUrl!: string;
   licenseUrl!: string;
   subtitleUrl!: string;
-  streamingUrlHeaders: any = {};
-  licenseUrlHeaders: any = {};
+  streamingUrlHeaders: Record<string, string> = {};
+  licenseUrlHeaders: Record<string, string> = {};
 
-  qualities: Quality[] = [ {
-    index: 0,
-    bitrate: 0,
-    bitrateStr: '0k',
-    width: 0,
-    height: 0
-  } ];
+  qualities: Quality[] = [
+    {
+      index: 0,
+      bitrate: 0,
+      bitrateStr: '0k',
+      width: 0,
+      height: 0,
+    },
+  ];
 
-  audioTracks: AudioTrack[] = [ this.selectedAudioTrack ]
-  logger: Logger = new Logger('PlayerControlsComponent');
+  audioTracks: AudioTrack[] = [this.selectedAudioTrack];
 
-  constructor(
-    public stateControllerService: StateControllerService,
-    private notificationService: NotificationService,
-    private storageService: StorageService
-  ) {
-    stateControllerService.setDebug(false);
+  readonly stateControllerService = inject(StateControllerService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly storageService = inject(StorageService);
+  private readonly logger = new Logger('PlayerControlsComponent');
 
-    stateControllerService.registerTransitions('settings', [
-      {
-        from: 'collapsed', to: 'visible', object: this, handle: () => {
-          document.removeEventListener('keydown', this.keyEvents);
-        }
-      },
-      {
-        from: 'visible', to: 'collapsed', object: this, handle: () => {
-          document.addEventListener('keydown', this.keyEvents);
-        }
-      }
-    ], 'collapsed');
+  constructor() {
+    this.stateControllerService.setDebug(false);
 
-    stateControllerService.registerTransitions('controls', [
-      {
-        from: 'collapsed', to: 'visible', object: this, handle: () => {
+    this.stateControllerService.registerTransitions(
+      'settings',
+      [
+        {
+          from: 'collapsed',
+          to: 'visible',
+          object: this,
+          handle: () => {
+            document.removeEventListener('keydown', this.keyEvents);
+          },
+        },
+        {
+          from: 'visible',
+          to: 'collapsed',
+          object: this,
+          handle: () => {
+            document.addEventListener('keydown', this.keyEvents);
+          },
+        },
+      ],
+      'collapsed'
+    );
+
+    this.stateControllerService.registerTransitions(
+      'controls',
+      [
+        {
+          from: 'collapsed',
+          to: 'visible',
+          object: this,
+          handle: () => {
             document.body.style.cursor = 'initial';
-        }
-      },
-      {
-        from: 'visible', to: 'collapsed', object: this, delay: 2500, handle: () => {
-          if(!stateControllerService.getIsLocked('controls')) {
-            document.body.style.cursor = 'none';
-          }
-        }
-      }
-    ], 'collapsed');
+          },
+        },
+        {
+          from: 'visible',
+          to: 'collapsed',
+          object: this,
+          delay: 2500,
+          handle: () => {
+            if (!this.stateControllerService.getIsLocked('controls')) {
+              document.body.style.cursor = 'none';
+            }
+          },
+        },
+      ],
+      'collapsed'
+    );
 
     this.player = new Player();
-  }
-
-  ngOnInit() {
-    
   }
 
   ngAfterViewInit(): void {
     this.resizeProgressBar();
 
-    this.progressBar = new Range(this.progress.nativeElement, (value: number) => {
-      if(isNaN(value)) {
-        return;
-      }
+    this.progressBar = new Range(
+      this.progress.nativeElement,
+      (value: number) => {
+        if (isNaN(value)) {
+          return;
+        }
 
-      this.player.seek(value);
-    }, null, 0, this.player.getDuration(), 0, 'horizontal', 'controls-item controls-padding');
+        this.player.seek(value);
+      },
+      null,
+      0,
+      this.player.getDuration(),
+      0,
+      'horizontal',
+      'controls-item controls-padding'
+    );
 
-    this.volumeBar = new Range(this.volume.nativeElement, (value: number) => {
-      if(isNaN(value)) {
-        return;
-      }
+    this.volumeBar = new Range(
+      this.volume.nativeElement,
+      (value: number) => {
+        if (isNaN(value)) {
+          return;
+        }
 
-      this.setVolume(value);
-    }, null, 0, 0.99, 0.99, 'horizontal', 'controls-item controls-padding');
+        this.setVolume(value);
+      },
+      null,
+      0,
+      0.99,
+      0.99,
+      'horizontal',
+      'controls-item controls-padding'
+    );
 
-    window.addEventListener('mousemove', (e: any) => {
-      this.displayControls();
-    }, false);
+    window.addEventListener(
+      'mousemove',
+      () => {
+        this.displayControls();
+      },
+      false
+    );
 
-    var elems = document.querySelectorAll('.controls-item');
+    const elems = document.querySelectorAll('.controls-item');
 
-    for(let i = 0; i < elems.length; i++) {
-      elems[i].addEventListener('click', this.animateControlItem.bind(elems[i]));
+    for (const elem of Array.from(elems)) {
+      elem.addEventListener('click', this.animateControlItem.bind(elem));
     }
 
     document.addEventListener('keydown', this.keyEvents);
 
-    this.storageService.get('player-volume', (volume: number) => {
-      console.log('get player-volume', volume);
-
-      if(undefined !== volume) {
+    this.storageService.get<number>('player-volume', (volume) => {
+      if (volume !== undefined) {
         this.volumeBar.setValue(volume);
       }
 
-      this.storageService.get('player-muted', (muted: boolean) => {
-        console.log('get player-muted', muted);
-        
-        if(undefined === muted) {
+      this.storageService.get<boolean>('player-muted', (muted) => {
+        if (muted === undefined) {
           return;
         }
 
-        console.log('get player-muted', muted);
-
-        if(muted) {
+        if (muted) {
           this.player.mute();
         }
 
@@ -170,52 +216,50 @@ export class PlayerControlsComponent {
     });
   }
 
-  keyEvents = (e: any) => {
-    console.log(e);
-      
-    if('KeyF' == e.code) {
+  keyEvents = (e: KeyboardEvent): void => {
+    if ('KeyF' === e.code) {
       this.toggleFullscreen();
     }
 
-    if('KeyM' == e.code) {
+    if ('KeyM' === e.code) {
       this.toggleMute();
     }
 
-    if('Space' == e.code) {
+    if ('Space' === e.code) {
       this.playPause();
     }
 
-    if('ArrowRight' == e.code) {
+    if ('ArrowRight' === e.code) {
       this.progressBar.setValue(this.progressBar.getValue() + 5, true);
     }
 
-    if('ArrowLeft' == e.code) {
+    if ('ArrowLeft' === e.code) {
       this.progressBar.setValue(this.progressBar.getValue() - 5, true);
     }
 
-    if('ArrowUp' == e.code) {
-      this.volumeBar.setValue(this.volumeBar.getValue() + .1, true);
+    if ('ArrowUp' === e.code) {
+      this.volumeBar.setValue(this.volumeBar.getValue() + 0.1, true);
     }
 
-    if('ArrowDown' == e.code) {
-      this.volumeBar.setValue(this.volumeBar.getValue() - .1, true);
+    if ('ArrowDown' === e.code) {
+      this.volumeBar.setValue(this.volumeBar.getValue() - 0.1, true);
     }
 
-    if('KeyS' == e.code) {
-      if('collapsed' == this.stateControllerService.getState('settings')) {
+    if ('KeyS' === e.code) {
+      if ('collapsed' === this.stateControllerService.getState('settings')) {
         this.stateControllerService.transition('settings', 'visible');
       } else {
         this.stateControllerService.transition('settings', 'collapsed');
       }
     }
+  };
+
+  animateControlItem(e: Event): void {
+    (e.target as HTMLElement).style.background = 'click_animation .250s';
   }
 
-  animateControlItem(e: any) {
-    e.target.style.background = 'click_animation .250s';
-  }
-
-  loadStream() {
-    if(!this.streamingUrl) {
+  loadStream(): void {
+    if (!this.streamingUrl) {
       this.notificationService.show('Player Error', 'Please enter streaming URL');
       this.stateControllerService.transition('settings', 'visible');
       this.stateControllerService.transition('loader', 'collapsed');
@@ -226,17 +270,29 @@ export class PlayerControlsComponent {
     this.player.destroy();
     this.player = new Player();
 
-    this.guessTech(this.streamingUrl);
+    try {
+      this.guessTech(this.streamingUrl);
+    } catch (err) {
+      this.logger.e(err);
+      this.notificationService.show(
+        'Player Error',
+        'Unsupported stream URL. Please provide a .mpd (MPEG-DASH) or .m3u8 (HLS) URL.'
+      );
+      this.stateControllerService.transition('settings', 'visible');
+      this.stateControllerService.transition('loader', 'collapsed');
+      return;
+    }
+
     this.attachPlayerEventHandlers();
 
-    let licenseUrlHeaders = null;
-    let streamingUrlHeaders = null;
+    let licenseUrlHeaders: Record<string, string> | null = null;
+    let streamingUrlHeaders: Record<string, string> | null = null;
 
-    if(Object.keys(this.streamingUrlHeaders).length != 0) {
+    if (Object.keys(this.streamingUrlHeaders).length !== 0) {
       streamingUrlHeaders = this.streamingUrlHeaders;
     }
 
-    if(Object.keys(this.licenseUrlHeaders).length != 0) {
+    if (Object.keys(this.licenseUrlHeaders).length !== 0) {
       licenseUrlHeaders = this.licenseUrlHeaders;
     }
 
@@ -248,44 +304,44 @@ export class PlayerControlsComponent {
       false,
       streamingUrlHeaders,
       {
-          "com.widevine.alpha": {
-              "serverURL": this.licenseUrl,
-              "httpRequestHeaders": licenseUrlHeaders,
-              "priority": 0
-          }
+        'com.widevine.alpha': {
+          serverURL: this.licenseUrl,
+          httpRequestHeaders: licenseUrlHeaders,
+          priority: 0,
+        },
       },
-      (e: any) => {
-        this.notificationService.show("Player Error", "Please enter license URL");
+      () => {
+        this.notificationService.show('Player Error', 'Please enter license URL');
         this.stateControllerService.transition('settings', 'visible');
         this.stateControllerService.transition('loader', 'collapsed');
       }
     );
 
-    if(this.subtitleUrl) {
+    if (this.subtitleUrl) {
       this.player.loadSubtitles(this.subtitleUrl);
     }
   }
 
-  loadSubtitle(subtitleUrl: string) {
+  loadSubtitle(subtitleUrl: string): void {
     this.player.loadSubtitles(subtitleUrl);
   }
 
-  displayControls() {
+  displayControls(): void {
     this.stateControllerService.transition('controls', 'visible');
     this.stateControllerService.transition('controls', 'collapsed');
   }
 
-  freezeControls = () => {
+  freezeControls = (): void => {
     this.stateControllerService.lock('controls', 'visible');
-  }
+  };
 
-  unfreezeControls = () => {
+  unfreezeControls = (): void => {
     this.stateControllerService.unlock('controls');
     this.stateControllerService.transition('controls', 'collapsed');
-  }
+  };
 
-  playPause() {
-    if(this.player.videoElement.paused) {
+  playPause(): void {
+    if (this.player.videoElement.paused) {
       this.icon = 'pause';
       this.player.play();
     } else {
@@ -294,35 +350,35 @@ export class PlayerControlsComponent {
     }
   }
 
-  subtitleDelay(e: any) {
-    var delay = e.target.value;
+  subtitleDelay(e: Event): void {
+    const delay = (e.target as HTMLInputElement).value;
 
-    if(delay && this.player.getSubtitlesUrl() && '' != this.player.getSubtitlesUrl()) {
+    if (delay && this.player.getSubtitlesUrl() && '' !== this.player.getSubtitlesUrl()) {
       this.player.loadSubtitles(this.player.getSubtitlesUrl() + '&delay=' + delay);
     }
   }
 
-  selectAudioTrack(e: any) {
-    this.selectedAudioTrack = e;
-    this.player.setAudioTrack(e.index);
+  selectAudioTrack(audioTrack: AudioTrack): void {
+    this.selectedAudioTrack = audioTrack;
+    this.player.setAudioTrack(audioTrack.index);
   }
 
-  selectQuality(e: any) {
-    this.selectedQuality = e;
-    this.player.setQuality(e.index);
+  selectQuality(quality: Quality): void {
+    this.selectedQuality = quality;
+    this.player.setQuality(quality.index);
   }
 
-  selectSpeed(e: any) {
-    if(e < 0) {
+  selectSpeed(speed: number): void {
+    if (speed < 0) {
       this.notificationService.show('Playback rate', 'Playback rate cannot be negative');
       return;
     }
 
-    this.player.setPlaybackRate(e);
+    this.player.setPlaybackRate(speed);
   }
 
-  toggleFullscreen() {
-    if(!this.fullscreen) {
+  toggleFullscreen(): void {
+    if (!this.fullscreen) {
       this.parent.requestFullscreen();
       this.fullscreen = true;
     } else {
@@ -331,35 +387,35 @@ export class PlayerControlsComponent {
     }
   }
 
-  toggleSettings() {
-    if('visible' == this.stateControllerService.getState('settings')) {
+  toggleSettings(): void {
+    if ('visible' === this.stateControllerService.getState('settings')) {
       this.stateControllerService.transition('settings', 'collapsed');
     } else {
       this.stateControllerService.transition('settings', 'visible');
     }
   }
 
-  guessTech(url: string) {
-    if('undefined' === typeof(url)) {
-        this.logger.e('URL is undefined');
-        return;
-    }
-    
-    if(url.indexOf('.mpd') > -1) {
-        this.logger.d("Selecting DASH tech...");
-        this.tech = new DashTech();
-    } else if(url.indexOf('.m3u8') > -1) {
-      this.logger.d("Selecting HLS tech...");
-        this.tech = new HlsTech();
+  guessTech(url: string): void {
+    if ('undefined' === typeof url) {
+      this.logger.e('URL is undefined');
+      return;
     }
 
-    if(null == this.tech) {
-        throw 'Url ' + url + ' not recognized.';
+    if (url.indexOf('.mpd') > -1) {
+      this.logger.d('Selecting DASH tech...');
+      this.tech = new DashTech();
+    } else if (url.indexOf('.m3u8') > -1) {
+      this.logger.d('Selecting HLS tech...');
+      this.tech = new HlsTech();
+    }
+
+    if (null == this.tech) {
+      throw new Error('Url ' + url + ' not recognized.');
     }
   }
 
-  attachPlayerEventHandlers() {
-    this.player.addEventHandler('playing', (e: any) => {
+  attachPlayerEventHandlers(): void {
+    this.player.addEventHandler('playing', () => {
       this.logger.d('play');
       this.stateControllerService.transition('loader', 'collapsed');
       this.icon = 'pause';
@@ -367,14 +423,14 @@ export class PlayerControlsComponent {
       this.audioTracks = this.player.getAudioTracks();
       this.selectedAudioTrack = this.audioTracks[0];
       this.qualities = this.player.getQualities();
-      
+
       this.updateCurrentAutoQuality().then(() => {
         this.selectedQuality = this.qualities[0];
       });
 
-      let duration = this.player.getDuration();
+      const duration = this.player.getDuration();
 
-      if(Number.isFinite(duration)) {
+      if (Number.isFinite(duration)) {
         this.duration = this.formatTimeFromSeconds(this.player.getDuration());
       }
     });
@@ -389,28 +445,31 @@ export class PlayerControlsComponent {
       this.stateControllerService.transition('loader', 'visible');
     });
 
-    this.player.addEventHandler('error', (e:any) => {
+    this.player.addEventHandler('error', (e: { message?: string }) => {
       this.logger.e(e);
-      this.notificationService.show('Player error', e.message);
+      this.notificationService.show(
+        'Player error',
+        e.message || 'An unknown playback error occurred.'
+      );
     });
 
-    this.player.addEventHandler('hlsError', (e:any) => {
+    this.player.addEventHandler('hlsError', (e: { details?: string }) => {
       this.logger.e(e.details);
-      this.notificationService.show('Player error', e.details);
+      this.notificationService.show('Player error', e.details || 'A streaming error occurred.');
     });
 
     this.player.addEventHandler('streamInitialized', () => {
-
+      // Intentionally empty: reserved for stream-initialized handling.
     });
 
     this.player.addEventHandler('timeupdate', () => {
       this.currentTime = this.formatTimeFromSeconds(this.player.getCurrentTime());
 
-      if(this.progressBar) {
+      if (this.progressBar) {
         this.progressBar.setMaxValue(this.player.getDuration());
       }
 
-      if(this.player.getCurrentTime) {
+      if (this.player.getCurrentTime) {
         this.progressBar.setValue(this.player.getCurrentTime());
       }
 
@@ -418,117 +477,113 @@ export class PlayerControlsComponent {
     });
   }
 
-  async updateCurrentAutoQuality() {
-    var currentQuality = this.player.getCurrentQuality();
-      
-    for(var q in this.qualities) {
-      if(this.qualities[q].index == currentQuality.index) {
+  async updateCurrentAutoQuality(): Promise<void> {
+    const currentQuality = this.player.getCurrentQuality();
+
+    for (const q in this.qualities) {
+      if (this.qualities[q].index === currentQuality.index) {
         this.currentAutoQuality = this.qualities[q];
         return;
       }
     }
   }
 
-  formatTimeFromSeconds(val: number) {
-    var hours = Math.floor(val / 3600);
+  formatTimeFromSeconds(val: number): string {
+    const hours = Math.floor(val / 3600);
 
-    var minutes = Math.floor(val / 60);
-    minutes = minutes < 60 ? minutes :  (Math.floor(val / 60) - hours * 60);
+    let minutes = Math.floor(val / 60);
+    minutes = minutes < 60 ? minutes : Math.floor(val / 60) - hours * 60;
 
-    var seconds = val < 60 ? val : val - ((hours * 3600) + (minutes * 60));
+    let seconds = val < 60 ? val : val - (hours * 3600 + minutes * 60);
     seconds = Math.floor(seconds);
 
-    return hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+    return (
+      hours.toString().padStart(2, '0') +
+      ':' +
+      minutes.toString().padStart(2, '0') +
+      ':' +
+      seconds.toString().padStart(2, '0')
+    );
   }
 
-  resizeProgressBar() {
-    this.progress.nativeElement.style.width = (window.innerWidth - 445) + 'px';
+  resizeProgressBar(): void {
+    this.progress.nativeElement.style.width = window.innerWidth - 445 + 'px';
   }
 
-  @HostListener('window:resize', ['$event'])
-  onResize(event:any) {
-      this.resizeProgressBar();
+  @HostListener('window:resize')
+  onResize(): void {
+    this.resizeProgressBar();
   }
 
-  changeStreamingUrl(streamingUrl: string) {
+  changeStreamingUrl(streamingUrl: string): void {
     this.streamingUrl = streamingUrl;
   }
 
-  changeLicenseUrl(licenseUrl: string) {
+  changeLicenseUrl(licenseUrl: string): void {
     this.licenseUrl = licenseUrl;
   }
 
-  changeStreamingUrlHeaders(streamingUrlHeaders: Array<Header>) {
+  changeStreamingUrlHeaders(streamingUrlHeaders: Header[]): void {
     this.streamingUrlHeaders = {};
 
-    for(let i = 0; i < streamingUrlHeaders.length; i++) {
-      if('' != streamingUrlHeaders[i].name && '' != streamingUrlHeaders[i].value) {
-        this.streamingUrlHeaders[streamingUrlHeaders[i].name] = streamingUrlHeaders[i].value;
+    for (const header of streamingUrlHeaders) {
+      if ('' !== header.name && '' !== header.value) {
+        this.streamingUrlHeaders[header.name] = header.value;
       }
     }
   }
 
-  changeLicenseUrlHeaders(licenseUrlHeaders: Array<Header>) {
+  changeLicenseUrlHeaders(licenseUrlHeaders: Header[]): void {
     this.licenseUrlHeaders = {};
 
-    for(let i = 0; i < licenseUrlHeaders.length; i++) {
-      if('' != licenseUrlHeaders[i].name && '' != licenseUrlHeaders[i].value) {
-        this.licenseUrlHeaders[licenseUrlHeaders[i].name] = licenseUrlHeaders[i].value;
+    for (const header of licenseUrlHeaders) {
+      if ('' !== header.name && '' !== header.value) {
+        this.licenseUrlHeaders[header.name] = header.value;
       }
     }
   }
 
-  toggleMute() {
-    if(this.player.isMuted()) {
+  toggleMute(): void {
+    if (this.player.isMuted()) {
       this.player.unmute();
-
-      this.storageService.set('player-muted', false, () => {
-        console.log('set player-muted false');
-      });
+      this.storageService.set('player-muted', false);
     } else {
       this.player.mute();
-      this.storageService.set('player-muted', true, () => {
-        console.log('set player-muted true');
-      });
+      this.storageService.set('player-muted', true);
     }
 
     this.setVolumeIcon();
   }
 
-  setVolume(volume: number) {
+  setVolume(volume: number): void {
     this.player.setVolume(volume);
     this.setVolumeIcon();
-
-    this.storageService.set('player-volume', volume, () => {
-      console.log('set player-volume', volume);
-    });
+    this.storageService.set('player-volume', volume);
   }
 
-  setVolumeIcon() {
-    console.log(this.player.getVolume());
-
-    if(this.player.isMuted()) {
+  setVolumeIcon(): void {
+    if (this.player.isMuted()) {
       this.volumeIcon = 'volume_off';
       return;
     }
 
-    if(this.player.getVolume() == 0) {
+    if (this.player.getVolume() === 0) {
       this.volumeIcon = 'volume_mute';
-    } else if(this.player.getVolume() > 0 && this.player.getVolume() <= .5) {
+    } else if (this.player.getVolume() > 0 && this.player.getVolume() <= 0.5) {
       this.volumeIcon = 'volume_down';
-    } else if(this.player.getVolume() > .5) {
+    } else if (this.player.getVolume() > 0.5) {
       this.volumeIcon = 'volume_up';
     }
   }
 
-  changeAlwaysShowFullPlayerControls(val: boolean) {
+  changeAlwaysShowFullPlayerControls(val: boolean): void {
     this.alwaysShowFullPlayerControls = val;
   }
 
-  changeShowNativePlayerControls(val: boolean) {
+  changeShowNativePlayerControls(val: boolean): void {
     this.showNativePlayerControls = val;
 
-    if(true == val) {
+    if (val) {
       this.stateControllerService.lock('controls', 'collapsed');
       this.videoElement.controls = true;
     } else {
@@ -537,11 +592,11 @@ export class PlayerControlsComponent {
     }
   }
 
-  ngOnDestroy() {
-    var elems = document.querySelectorAll('.controls-item');
+  ngOnDestroy(): void {
+    const elems = document.querySelectorAll('.controls-item');
 
-    for(let i = 0; i < elems.length; i++) {
-      elems[i].removeEventListener('click', this.animateControlItem);
-    } 
+    for (const elem of Array.from(elems)) {
+      elem.removeEventListener('click', this.animateControlItem);
+    }
   }
 }

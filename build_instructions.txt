@@ -2,6 +2,6 @@ Extension is written in Angular. You need node and angular-cli installed.
 Unpack the zip, run the following commands inside the project root
 
 > npm i
-> npm run build_firefox
+> npm run build:firefox
 
 Load the build from dist/nas-extension-firefox.
