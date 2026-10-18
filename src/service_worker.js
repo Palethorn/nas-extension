@@ -24,16 +24,6 @@ var defaultDnrRules = [{
     resourceTypes: ['main_frame', 'sub_frame'],
   },
 }, {
-    id: 3,
-    action: {
-      type: 'redirect',
-      redirect: { regexSubstitution: substitution },
-    },
-    condition: {
-      regexFilter: '^https?://.*/.*/Manifest(\\?.*)?',
-      resourceTypes: ['main_frame', 'sub_frame'],
-    },
-}, {
     id: 4,
     action: {
       type: 'redirect',
