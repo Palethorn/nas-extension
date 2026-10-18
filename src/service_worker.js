@@ -10,7 +10,7 @@ var defaultDnrRules = [{
     redirect: { regexSubstitution: substitution },
   },
   condition: {
-    regexFilter: '^https?://.*/.*\\.m3u8(\\?.*)?',
+    regexFilter: '^https?://[^?#]*\\.m3u8(\\?[^#]*)?(#.*)?$',
     resourceTypes: ['main_frame', 'sub_frame'],
   },
 }, {
@@ -20,7 +20,7 @@ var defaultDnrRules = [{
     redirect: { regexSubstitution: substitution },
   },
   condition: {
-    regexFilter: '^https?://.*/.*\\.mpd(\\?.*)?',
+    regexFilter: '^https?://[^?#]*\\.mpd(\\?[^#]*)?(#.*)?$',
     resourceTypes: ['main_frame', 'sub_frame'],
   },
 }, {
@@ -40,7 +40,7 @@ var defaultDnrRules = [{
       redirect: { regexSubstitution: substitution },
     },
     condition: {
-      regexFilter: '^https?://.*/.*\\.m3u(\\?.*)?',
+      regexFilter: '^https?://[^?#]*\\.m3u(\\?[^#]*)?(#.*)?$',
       resourceTypes: ['main_frame', 'sub_frame'],
     },
 }];
